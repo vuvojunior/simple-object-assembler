@@ -1,0 +1,28 @@
+#summary A getting started guide
+
+= Introduction =
+
+Pending some real documentation that will come before too long.  This is a very basic guide to get started.  It covers a couple of things that were missing from the [http://backtofront.squarespace.com/blog/2008/12/30/a-simple-object-assembler.html blog article].
+
+
+= Details =
+
+Firstly, download the latest version of the code or check it out from svn and build it using maven.  if you're running maven on your project, you'll need to install it into your local repository as there is not public repository version yet.
+
+Next add the following dependency to your project:
+
+{{{
+<dependency>
+   <groupId>com.googlecode.simpleobjectassembler</groupId>
+   <artifactId>simpleobjectassembler</artifactId>
+   <version>0.1.0</version>
+</dependency> 
+}}}
+
+Once your project is correctly configured.  Add a bean definition to your spring application context for the object assembler:
+
+{{{
+<bean id="objectAssembler" class="com.googlecode.simpleobjectassembler.impl.SimpleObjectAssembler" />
+}}}
+
+Now you're ready to use the object assembler with any Converters you write.  For now refer back to the blog article for details.
