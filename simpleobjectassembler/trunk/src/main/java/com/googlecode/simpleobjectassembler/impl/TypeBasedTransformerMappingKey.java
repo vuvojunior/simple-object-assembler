@@ -1,0 +1,57 @@
+package com.googlecode.simpleobjectassembler.impl;
+
+import com.googlecode.simpleobjectassembler.ConverterRegistry;
+import com.googlecode.simpleobjectassembler.ObjectAssembler;
+
+/**
+ * A key used to store a converter in the {@link ConverterRegistry} of an
+ * {@link ObjectAssembler}.
+ * 
+ */
+public class TypeBasedTransformerMappingKey implements ConverterMappingKey {
+
+   private final Class<?> sourceClass;
+
+   private final Class<?> destinationClass;
+
+   TypeBasedTransformerMappingKey(final Class<?> sourceClass, final Class<?> destinationClass) {
+      super();
+      this.sourceClass = sourceClass;
+      this.destinationClass = destinationClass;
+   }
+
+   public Class<?> getSourceClass() {
+      return sourceClass;
+   }
+
+   public Class<?> getDestinationClass() {
+      return destinationClass;
+   }
+
+   @Override
+   public boolean equals(final Object object) {
+      if (object == this) {
+         return true;
+      }
+      else if (object instanceof TypeBasedTransformerMappingKey) {
+         final TypeBasedTransformerMappingKey other = (TypeBasedTransformerMappingKey) object;
+         if (other.sourceClass.equals(sourceClass) && other.destinationClass.equals(destinationClass)) {
+            return true;
+         }
+      }
+
+      return false;
+
+   }
+
+   @Override
+   public int hashCode() {
+      return sourceClass.hashCode() + destinationClass.hashCode();
+   }
+
+   @Override
+   public String toString() {
+      return sourceClass.getName() + " to " + destinationClass.getName();
+   }
+
+}
