@@ -2,7 +2,6 @@ package com.googlecode.simpleobjectassembler.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.stereotype.Component;
 
 import com.googlecode.simpleobjectassembler.ConverterRegistry;
 import com.googlecode.simpleobjectassembler.ObjectAssembler;
@@ -12,10 +11,10 @@ import com.googlecode.simpleobjectassembler.utils.CglibUtils;
 /**
  * Single implementation of the {@link ObjectAssembler} for assembling objects.
  * Uses an internal registry of converters supplied by the end developer that
- * are registered on app startup. 
+ * are registered on app startup.
  * 
  */
-@Component("objectAssembler")
+
 public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAssembler {
 
    private static final Log LOG = LogFactory.getLog(SimpleObjectAssembler.class);

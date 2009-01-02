@@ -28,10 +28,10 @@ import org.springframework.util.StringUtils;
 import com.googlecode.simpleobjectassembler.ObjectAssembler;
 import com.googlecode.simpleobjectassembler.ObjectConverter;
 
-public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObjectClass> implements
+public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObjectClass> implements
       ObjectConverter<SourceObjectClass, DestinationObjectClass> {
 
-   private static final String[] DEFAULT_PROPERTIES_TO_IGNORE = new String[] {"class"};
+   private static final String[] DEFAULT_PROPERTIES_TO_IGNORE = new String[] { "class" };
 
    private static final String PROPERTY_EXCLUSION_WILDCARD_CHARACTER = "*";
 
@@ -48,9 +48,10 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    private final List<PropertyDescriptorPair> collectionConversionCandidates = new ArrayList<PropertyDescriptorPair>();
 
    /**
-    * Creates an instance of the destination object reflectively. Override this method if special object construction is
-    * required. The sourceObject passed into this method is guaranteed not to be null to save redundant null checking of the
-    * sourceObject.
+    * Creates an instance of the destination object reflectively. Override this
+    * method if special object construction is required. The sourceObject passed
+    * into this method is guaranteed not to be null to save redundant null
+    * checking of the sourceObject.
     * 
     * @param sourceObject
     * 
@@ -60,10 +61,12 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
 
       try {
          return getDestinationObjectClass().newInstance();
-      } catch (InstantiationException e) {
+      }
+      catch (InstantiationException e) {
          throw new ConversionException("Could not instantiate new instance of " + getDestinationObjectClass()
                + ". Ensure there is a no arg constructor available.", e);
-      } catch (IllegalAccessException e) {
+      }
+      catch (IllegalAccessException e) {
          throw new ConversionException("Could not instantiate new instance of " + getDestinationObjectClass(), e);
       }
    }
@@ -71,7 +74,9 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    /*
     * (non-Javadoc)
     * 
-    * @see au.com.australiapost.postzone.core.service.assembler.ObjectConverter#convert (java.lang.Object, java.lang.String[])
+    * @see
+    * au.com.australiapost.postzone.core.service.assembler.ObjectConverter#convert
+    * (java.lang.Object, java.lang.String[])
     */
    public final DestinationObjectClass convert(SourceObjectClass sourceObject, ConversionCache conversionCache,
          String[] ignoreProperties) {
@@ -83,7 +88,9 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    /*
     * (non-Javadoc)
     * 
-    * @see au.com.australiapost.postzone.core.service.assembler.ObjectConverter#convert (java.lang.Object)
+    * @see
+    * au.com.australiapost.postzone.core.service.assembler.ObjectConverter#convert
+    * (java.lang.Object)
     */
    // public DestinationObjectClass convert(SourceObjectClass sourceObject) {
    // return this.convert(sourceObject, conversionCache, new String[] {});
@@ -91,55 +98,66 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    /*
     * (non-Javadoc)
     * 
-    * @see au.com.australiapost.postzone.core.service.assembler.ObjectConverter#convert (java.lang.Object, java.lang.Object,
-    * java.lang.String[])
+    * @see
+    * au.com.australiapost.postzone.core.service.assembler.ObjectConverter#convert
+    * (java.lang.Object, java.lang.Object, java.lang.String[])
     */
-   public final DestinationObjectClass convert(SourceObjectClass sourceObject, DestinationObjectClass destinationObject,
-         ConversionCache conversionCache, String[] ignoreProperties) {
+   public final DestinationObjectClass convert(SourceObjectClass sourceObject,
+         DestinationObjectClass destinationObject, ConversionCache conversionCache, String[] ignoreProperties) {
 
-      final DestinationObjectClass previouslyConvertedDestinationObject =
-            (DestinationObjectClass) conversionCache.getConvertedObjectBySourceObjectAndDestinationType(sourceObject,
-                  getDestinationObjectClass());
+      final DestinationObjectClass previouslyConvertedDestinationObject = (DestinationObjectClass) conversionCache
+            .getConvertedObjectBySourceObjectAndDestinationType(sourceObject, getDestinationObjectClass());
 
       if (previouslyConvertedDestinationObject == null) {
-         conversionCache.cacheConvertedObjectBySourceObject(sourceObject, destinationObject, getDestinationObjectClass());
-      } else {
+         conversionCache.cacheConvertedObjectBySourceObject(sourceObject, destinationObject,
+               getDestinationObjectClass());
+      }
+      else {
          return previouslyConvertedDestinationObject;
       }
 
+      initialiseFieldMappingIfRequired();
+      final Set<String> explicitIgnoreSet = alwaysIgnoreProperties();
+      Collections.addAll(explicitIgnoreSet, DEFAULT_PROPERTIES_TO_IGNORE);
+      Collections.addAll(explicitIgnoreSet, ignoreProperties);
+
+      validatePropertiesToIgnore(destinationObject, ignoreProperties);
+
+      final Set<String> fullIgnoreSet = new HashSet<String>();
+      fullIgnoreSet.addAll(explicitIgnoreSet);
+      fullIgnoreSet.addAll(this.incompatibleFields);
+
       if (!disableAutoMapping()) {
-         initialiseFieldMappingIfRequired();
-         final Set<String> explicitIgnoreSet = alwaysIgnoreProperties();
-         Collections.addAll(explicitIgnoreSet, DEFAULT_PROPERTIES_TO_IGNORE);
-         Collections.addAll(explicitIgnoreSet, ignoreProperties);
-
-         validatePropertiesToIgnore(destinationObject, ignoreProperties);
-
-         final Set<String> fullIgnoreSet = new HashSet<String>();
-         fullIgnoreSet.addAll(explicitIgnoreSet);
-         fullIgnoreSet.addAll(this.incompatibleFields);
 
          if (!fullIgnoreSet.contains(PROPERTY_EXCLUSION_WILDCARD_CHARACTER)) {
             // Copy basic properties
-            // BeanUtils.copyProperties(sourceObject, destinationObject, fullIgnoreSet.toArray(new String[] {}));
+            // BeanUtils.copyProperties(sourceObject, destinationObject,
+            // fullIgnoreSet.toArray(new String[] {}));
 
             final PropertyAccessor sourcePropertyAccessor = new DirectFieldAccessor(sourceObject);
             final PropertyAccessor destinationPropertyAccessor = new DirectFieldAccessor(destinationObject);
             convertPropertiesOfSameType(explicitIgnoreSet, sourcePropertyAccessor, destinationPropertyAccessor);
             convertNonCollectionPropertiesOfDifferentType(explicitIgnoreSet, sourcePropertyAccessor,
                   destinationPropertyAccessor, conversionCache);
-            convertCollectionProperties(explicitIgnoreSet, sourcePropertyAccessor, destinationPropertyAccessor, conversionCache);
+            convertCollectionProperties(explicitIgnoreSet, sourcePropertyAccessor, destinationPropertyAccessor,
+                  conversionCache);
          }
       }
 
-      // call user defined conversions.
-      return convert(sourceObject, destinationObject);
+      if (!fullIgnoreSet.contains(PROPERTY_EXCLUSION_WILDCARD_CHARACTER)) {
+         // call user defined conversions.
+         return convert(sourceObject, destinationObject);
+      }
+      else {
+         return destinationObject;
+      }
 
    }
 
    /**
-    * Override to provide any custom conversion logic required for the converter. Default implementation does nothing. Override
-    * if there is special conversion logic required by
+    * Override to provide any custom conversion logic required for the
+    * converter. Default implementation does nothing. Override if there is
+    * special conversion logic required by
     * 
     * @param sourceObject
     * @param destinationObject
@@ -159,7 +177,8 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    }
 
    /**
-    * Runs post construction to inject the converter back into the assembler for use at runtime.
+    * Runs post construction to inject the converter back into the assembler for
+    * use at runtime.
     * 
     */
    @PostConstruct
@@ -174,8 +193,8 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    }
 
    /**
-    * Override to define any custom field mappings that should be applied where the source and destination field names do not
-    * match
+    * Override to define any custom field mappings that should be applied where
+    * the source and destination field names do not match
     * 
     * @return
     */
@@ -184,7 +203,8 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    }
 
    /**
-    * Override and return true if a particular converter should disable auto field mapping. Default value is false
+    * Override and return true if a particular converter should disable auto
+    * field mapping. Default value is false
     * 
     * @return
     */
@@ -193,8 +213,9 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    }
 
    /**
-    * Specify properties that should always be ignored during mapping with this converted. The runtime ignore set is added to
-    * this before any property mapping is carried out
+    * Specify properties that should always be ignored during mapping with this
+    * converted. The runtime ignore set is added to this before any property
+    * mapping is carried out
     * 
     * @return
     */
@@ -217,7 +238,8 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    }
 
    /**
-    * Validates that the properties in the ignore list are actually valid fields.
+    * Validates that the properties in the ignore list are actually valid
+    * fields.
     * 
     * @param sourceObject
     * @param ignoreProperties
@@ -235,9 +257,11 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
          if (!PROPERTY_EXCLUSION_WILDCARD_CHARACTER.equals(localProperty)) {
             try {
                beanPropertyAccessor.getPropertyValue(localProperty);
-            } catch (InvalidPropertyException ipe) {
+            }
+            catch (InvalidPropertyException ipe) {
                invalidProperties.add(destinationObject.getClass() + "#" + localProperty);
-            } catch (PropertyAccessException pac) {
+            }
+            catch (PropertyAccessException pac) {
                invalidProperties.add(destinationObject.getClass() + "#" + localProperty);
             }
          }
@@ -245,8 +269,8 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
 
       if (!invalidProperties.isEmpty()) {
          throw new ConversionException(
-               "The following properties defined as properties to exclude from conversion in converter " + this.getClass()
-                     + " do not exist on their respective types. "
+               "The following properties defined as properties to exclude from conversion in converter "
+                     + this.getClass() + " do not exist on their respective types. "
                      + "Please check that they have not been misspelled or have changed due to refactoring.\n"
                      + invalidProperties.toString());
       }
@@ -254,36 +278,41 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    }
 
    /**
-    * Convert collection properties using mapped converters where registered. Destination collections of the same size as source
-    * collections will map directly against the collection item of the same index. Null or empty destination collections will be
-    * created.
+    * Convert collection properties using mapped converters where registered.
+    * Destination collections of the same size as source collections will map
+    * directly against the collection item of the same index. Null or empty
+    * destination collections will be created.
     * 
-    * TODO: RM Need to handle case where the destination collection size is different to the source - add new or remove deleted
-    * items.
+    * TODO: RM Need to handle case where the destination collection size is
+    * different to the source - add new or remove deleted items.
     * 
     * @param explicitIgnoreSet
     * @param sourcePropertyAccessor
     * @param destinationPropertyAccessor
     */
-   private void convertCollectionProperties(final Set<String> explicitIgnoreSet, final PropertyAccessor sourcePropertyAccessor,
-         final PropertyAccessor destinationPropertyAccessor, ConversionCache conversionCache) {
+   private void convertCollectionProperties(final Set<String> explicitIgnoreSet,
+         final PropertyAccessor sourcePropertyAccessor, final PropertyAccessor destinationPropertyAccessor,
+         ConversionCache conversionCache) {
       for (PropertyDescriptorPair pdp : collectionConversionCandidates) {
          final String sourcePropertyName = pdp.getSource().getName();
          final String destinationPropertyName = pdp.getDestination().getName();
          if (!explicitIgnoreSet.contains(destinationPropertyName)) {
 
-            final Class<?> destinationCollectionType = destinationPropertyAccessor.getPropertyType(destinationPropertyName);
+            final Class<?> destinationCollectionType = destinationPropertyAccessor
+                  .getPropertyType(destinationPropertyName);
             final Class<?> genericDestinationCollectionType = pdp.getGenericDestinationCollectionType();
-            final Collection<?> sourceCollection = (Collection<?>) sourcePropertyAccessor.getPropertyValue(sourcePropertyName);
+            final Collection<?> sourceCollection = (Collection<?>) sourcePropertyAccessor
+                  .getPropertyValue(sourcePropertyName);
 
-            Collection destinationCollection =
-                  (Collection) destinationPropertyAccessor.getPropertyValue(pdp.getDestination().getName());
+            Collection destinationCollection = (Collection) destinationPropertyAccessor.getPropertyValue(pdp
+                  .getDestination().getName());
             if (sourceCollection != null) {
 
                final String[] nestedExclusions = getNestedPropertyExclusions(destinationPropertyName, explicitIgnoreSet);
 
                if (destinationCollection != null && isOrderedCollection(destinationCollection)
-                     && isOrderedCollection(sourceCollection) && destinationCollection.size() == sourceCollection.size()) {
+                     && isOrderedCollection(sourceCollection)
+                     && destinationCollection.size() == sourceCollection.size()) {
 
                   int i = 0;
                   for (final Iterator it = sourceCollection.iterator(); it.hasNext(); i++) {
@@ -291,21 +320,24 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
                      final Object destinationObject = retrieveIndexedValueFromCollection(destinationCollection, i);
                      objectAssembler.assemble(sourceObject, destinationObject, conversionCache, nestedExclusions);
                   }
-               } else {
+               }
+               else {
 
                   // This is limiting but only expect lists and sets for now.
                   if (List.class.isAssignableFrom(destinationCollectionType)) {
                      destinationCollection = new ArrayList();
-                  } else if (Set.class.isAssignableFrom(destinationCollectionType)) {
+                  }
+                  else if (Set.class.isAssignableFrom(destinationCollectionType)) {
                      destinationCollection = new HashSet();
-                  } else {
-                     throw new IllegalArgumentException("Only support conversion of set and list collection types for now.");
+                  }
+                  else {
+                     throw new IllegalArgumentException(
+                           "Only support conversion of set and list collection types for now.");
                   }
 
                   for (final Iterator it = sourceCollection.iterator(); it.hasNext();) {
-                     final Object convertedObject =
-                           objectAssembler.assemble(it.next(), genericDestinationCollectionType, conversionCache,
-                                 nestedExclusions);
+                     final Object convertedObject = objectAssembler.assemble(it.next(),
+                           genericDestinationCollectionType, conversionCache, nestedExclusions);
                      destinationCollection.add(convertedObject);
                   }
 
@@ -321,10 +353,12 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    }
 
    /**
-    * Will retrieve an object by it's index regardless of collection type. Beware that non indexed collections such as a hashset
-    * will not retrieve values reliably by index .
+    * Will retrieve an object by it's index regardless of collection type.
+    * Beware that non indexed collections such as a hashset will not retrieve
+    * values reliably by index .
     * 
-    * TODO: May want to throw an exception if attempting to retrieve a value by index from an unordered collection.
+    * TODO: May want to throw an exception if attempting to retrieve a value by
+    * index from an unordered collection.
     * 
     * @param collection
     * @param index
@@ -334,7 +368,8 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
 
       if (collection instanceof List) {
          return ((List<?>) collection).get(index);
-      } else {
+      }
+      else {
          final Iterator<?> it = collection.iterator();
          for (int j = 0; it.hasNext(); j++) {
             final Object elem = it.next();
@@ -361,8 +396,8 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
             Object convertedValue = null;
             if (nestedSourceObject != null && convertedValue == null) {
                final String[] nestedExclusions = getNestedPropertyExclusions(destinationPropertyName, explicitIgnoreSet);
-               convertedValue =
-                     objectAssembler.assemble(nestedSourceObject, destinationType, conversionCache, nestedExclusions);
+               convertedValue = objectAssembler.assemble(nestedSourceObject, destinationType, conversionCache,
+                     nestedExclusions);
             }
 
             destinationPropertyAccessor.setPropertyValue(destinationPropertyName, convertedValue);
@@ -372,9 +407,10 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    }
 
    /**
-    * Returns any nested properties rooted at the property base path. For example, if the propertyBase is set to "address",
-    * exclusions such as "address.postcode" would match, as would "address.state.name". These would return the values of
-    * "postcode" & "state.name" respectively
+    * Returns any nested properties rooted at the property base path. For
+    * example, if the propertyBase is set to "address", exclusions such as
+    * "address.postcode" would match, as would "address.state.name". These would
+    * return the values of "postcode" & "state.name" respectively
     * 
     * @param explicitIgnoreSet
     * @return
@@ -394,9 +430,10 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    }
 
    /**
-    * Initialises list of incompatible fields and registers converter candidates based on other registered converters. This must
-    * execute after all converters are registered which is why it's not run on bean initialisation. Results are cached so that
-    * it's only run once.
+    * Initialises list of incompatible fields and registers converter candidates
+    * based on other registered converters. This must execute after all
+    * converters are registered which is why it's not run on bean
+    * initialisation. Results are cached so that it's only run once.
     * 
     * @throws NoSuchFieldException
     * @throws SecurityException
@@ -430,22 +467,26 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
                   incompatibleFields.add(sourceName);
 
                   if (objectAssembler.converterExists(sourceType, destinationType)) {
-                     conversionCandidatesOfDifferentType.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                     conversionCandidatesOfDifferentType
+                           .add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
                   }
-               } else if (shouldMapFieldNames(sourceName, destinationName) && isSupportedCollection(sourceType)
+               }
+               else if (shouldMapFieldNames(sourceName, destinationName) && isSupportedCollection(sourceType)
                      && !hasSameGenericCollectionType(sourcePds[i], destinationPds[j])
                      && writableDestinationFields.containsKey(destinationName)) {
 
                   // add fields that are incompatible for a direct mapping
                   incompatibleFields.add(sourceName);
 
-                  final Class<?> genericDestinationCollectionType =
-                        GenericCollectionTypeResolver.getCollectionReturnType(destinationPds[j].getReadMethod());
+                  final Class<?> genericDestinationCollectionType = GenericCollectionTypeResolver
+                        .getCollectionReturnType(destinationPds[j].getReadMethod());
 
                   collectionConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j],
                         genericDestinationCollectionType));
 
-               } else if (shouldMapFieldNames(sourceName, destinationName) && writableDestinationFields.containsKey(destinationName)) {
+               }
+               else if (shouldMapFieldNames(sourceName, destinationName)
+                     && writableDestinationFields.containsKey(destinationName)) {
                   conversionCandidatesOfSameType.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
                }
             }
@@ -472,15 +513,17 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
    private boolean hasSameGenericCollectionType(PropertyDescriptor sourcePropertyDescriptor,
          PropertyDescriptor destinationPropertyDescriptor) {
 
-      final Class<?> genericSourceType =
-            GenericCollectionTypeResolver.getCollectionReturnType(sourcePropertyDescriptor.getReadMethod());
-      final Class<?> genericDestinationType =
-            GenericCollectionTypeResolver.getCollectionReturnType(destinationPropertyDescriptor.getReadMethod());
+      final Class<?> genericSourceType = GenericCollectionTypeResolver.getCollectionReturnType(sourcePropertyDescriptor
+            .getReadMethod());
+      final Class<?> genericDestinationType = GenericCollectionTypeResolver
+            .getCollectionReturnType(destinationPropertyDescriptor.getReadMethod());
       if (genericSourceType == null && genericDestinationType == null) {
          return true;
-      } else if (genericSourceType == null || genericDestinationType == null) {
+      }
+      else if (genericSourceType == null || genericDestinationType == null) {
          return false;
-      } else {
+      }
+      else {
          return genericSourceType.equals(genericDestinationType);
       }
    }
@@ -510,7 +553,8 @@ public abstract class AbstractObjectConverter <SourceObjectClass, DestinationObj
          this.genericDestinationCollectionType = null;
       }
 
-      public PropertyDescriptorPair(PropertyDescriptor source, PropertyDescriptor destination, Class<?> genericDestinationClass) {
+      public PropertyDescriptorPair(PropertyDescriptor source, PropertyDescriptor destination,
+            Class<?> genericDestinationClass) {
          super();
          this.source = source;
          this.destination = destination;
