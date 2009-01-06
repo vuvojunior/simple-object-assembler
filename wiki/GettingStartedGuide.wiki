@@ -24,9 +24,9 @@ Once your project is correctly configured with the Simple Object Assembler on yo
 Now you're ready to use the object assembler with any Converters you write.  For now refer back to the blog article for details.
 
 ==3rd Party Dependencies==
-I've tried to make most of the dependencies optional or specified them with a scope of 'provided' in the maven dependency configuration.  This way you don't have to worry about conflicting versions of Spring for example.  There is a dependency on Spring 2+ and you will get less configuration if you have annotation based configuration enabled.
+I've tried to make most of the dependencies optional or specified them with a scope of 'provided' in the maven dependency configuration.  This way you don't have to worry about conflicting versions of Spring for example.  There is a dependency on Spring 2.x and you will get less configuration if you have annotation based configuration enabled.
 
-For anyone not using annotation based configuration, each converter will need an init-method to be defined on the bean definition that calls postConstruct(), or will need to implement InitializingBean and explicitly call postConstruct().  Converters also need an instance of the objectAssembler to be injected via the setter.  Annotation based projects can skip all this.
+For anyone not using annotation based configuration, each converter will need an {{{init-method}}} to be defined on the bean definition that calls {{{postConstruct()}}}, or will need to implement {{{InitializingBean}}} and explicitly call {{{postConstruct()}}}.  Converters also need an instance of the {{{SimpleObjectAssembler}}} to be injected via the setter.  Annotation based projects can skip all this.
 
  
 ==Object Assembly / Conversion==
@@ -56,15 +56,15 @@ public class SourceToDestinationTestObjectConverter extends    AbstractObjectCon
 }}}
  
 
-You'll notice that this converter extends the AbstractObjectConverter which has or defers to most of the conversion logic. The end result of calling this converter via the assembler as shown above is that all properties of the same name will be converted from the source to destination object. If two properties with the same name but different types are encountered, the registry will be consulted and the assembler will recursively call itself until all properties are converted.
+You'll notice that this converter extends the {{{AbstractObjectConverter}}} which has or defers most of the conversion logic to supporting classes. The end result of calling this converter via the assembler as shown above is that all properties of the same name will be converted from the source to destination object. If two properties with the same name but different types are encountered, the registry will be consulted and the assembler will recursively call itself until all properties are converted.
 
 
 ==Selective Conversion==
 
 If you want to exclude any part of the object graph from automatically being converted, you can do so in three ways.
 
-  # By overriding the 'disableAutoMapping()' method on your converter implementation and returning 'true'
-  # By overriding the 'alwaysIgnoreProperties()' method on your converter and returning a Set of field names to exclude from conversion
+  # By overriding the {{{disableAutoMapping()}}} method on your converter implementation and returning {{{true}}}
+  # By overriding the {{{alwaysIgnoreProperties()}}} method on your converter and returning a Set of field names to exclude from conversion
   # By passing an array or var-args of property names to exclude into the assembler
 
 
@@ -87,7 +87,7 @@ This approach is very similar to web field binding except that collections are n
 
 ==Wildcard Exclusions==
 
-There are times when you want to convert an object that is a property of another but not actually convert any of it's properties. Say for example, you want to look up a staff member's manager from the database using the {{{createDestinationObject(...)}}} method (described below) and populate the manager field in the staff member but you don't want to actually map any of the ManagerDto fields onto the Manager object from the database. In this case you can use a wildcard in your ignorePath.
+There are times when you want to convert an object that is a property of another but not actually convert any of it's properties. Say for example, you want to look up a staff member's manager from the database using the {{{createDestinationObject(...)}}} method (described below) and populate the manager field in the staff member but you don't want to actually map any of the {{{ManagerDto}}} fields onto the Manager object from the database. In this case you can use a wildcard in your ignorePath.
 
 {{{
 StaffMember staffMember objectAssembler.assemble(staffMemberDto, StaffMember.class, "manager.*");
@@ -97,7 +97,7 @@ The effect of this is that the constructed destination object is simply returned
 
 ==Mapping fields with different names==
 
-Sometimes your source and destination objects don't have the same names. In this case, it's possible to define pairs of 'source > destination' names for mapping. This is done at the converter level by overriding the 'customConverterFieldMappings()' method. This method should return a Set of ConverterFieldMappings that describe the source and destination field names.
+Sometimes your source and destination objects don't have the same names. In this case, it's possible to define pairs of 'source > destination' names for mapping. This is done at the converter level by overriding the {{{customConverterFieldMappings()}}} method. This method should return a Set of {{{ConverterFieldMapping}}}s that describe the source and destination field names.
 
 
 ==Configuration Validation==
@@ -106,9 +106,9 @@ It's easy to mistype a property name so you'll want some checking to make sure y
 
 ==Constructing your own Destination Object==
 
-The default behaviour is for the converter to attempt to construct a destination object based on it's destination type. This requires your destination object to have a default no-arg constructor. If you want to be able to construct your own object you can do this by overriding the createDestinationObject(SourceObject sourceObject) method. Because the sourceObject is passed into this method it's entirely possible to manually do some conversion in here. This however is not the intended place and it's possible that your values will be overridden during the actual conversion which happens next so it's not advised. There is a spectific method for this which i'll come to. This is however a good place to do things like retrieve an object from the database based on the id of the source object (the most common case), or use a factory to construct the destination object.
+The default behaviour is for the converter to attempt to construct a destination object based on it's destination type. This requires your destination object to have a default no-arg constructor. If you want to be able to construct your own object you can do this by overriding the {{{createDestinationObject(SourceObject sourceObject)}}} method. Because the {{{sourceObject}}} is passed into this method it's entirely possible to manually do some conversion in here. This however is not the intended place and it's possible that your values will be overridden during the actual conversion which happens next so it's not advised. There is a specific method for this which i'll come to. This is however a good place to do things like retrieve an object from the database based on the id of the source object (the most common case), or use a factory to construct the destination object.
 
-Example of a Converter with the createDestinationObject method being used.
+Example of a Converter with the {{{createDestinationObject}}} method being used.
 
 
 {{{
@@ -145,7 +145,7 @@ public class UserDtoToUserConverter extends AbstractObjectConverter<UserDto, Use
 
 ==Custom Conversion Logic==
 
-There are cases where you need to perform some custom conversion logic in java because it's not simple enough to just map one field to another. In this case you can override the convert(SourceObject sourceObject, DestinationObject destinationObject) method. This is called after all auto conversion has been performed and enables any custom conversion to be done. If you wanted to perform a full custom conversion for a converter you simply override disableAutoMapping() to return true and write your custom logic here.
+There are cases where you need to perform some custom conversion logic in java because it's not simple enough to just map one field to another. In this case you can override the {{{convert(SourceObject sourceObject, DestinationObject destinationObject)}}} method. This is called after all auto conversion has been performed and enables any custom conversion to be done. If you wanted to perform a full custom conversion for a converter you simply override {{{disableAutoMapping()}}} to return true and write your custom logic here.
 
 
 ==Some things to consider==
