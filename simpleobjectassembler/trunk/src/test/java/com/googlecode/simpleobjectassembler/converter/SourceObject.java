@@ -1,4 +1,4 @@
-package com.googlecode.simpleobjectassembler.impl;
+package com.googlecode.simpleobjectassembler.converter;
 
 import java.util.List;
 import java.util.Set;

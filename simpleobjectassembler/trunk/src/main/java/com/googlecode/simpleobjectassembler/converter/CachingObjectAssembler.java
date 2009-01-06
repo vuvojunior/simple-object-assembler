@@ -1,7 +1,6 @@
-package com.googlecode.simpleobjectassembler.impl;
+package com.googlecode.simpleobjectassembler.converter;
 
 import com.googlecode.simpleobjectassembler.ObjectAssembler;
-import com.googlecode.simpleobjectassembler.ObjectConverter;
 
 /**
  * Internal interface to be used when calling code is going to pass a conversion cache into assemble methods. Primarily used by

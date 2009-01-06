@@ -1,25 +1,20 @@
-package com.googlecode.simpleobjectassembler.impl;
+package com.googlecode.simpleobjectassembler.converter;
 
-public class NestedSourceObject {
+public class NestedDestinationObject {
 
    private String string;
 
    private String otherString;
    
-   private SourceObject parent;
-
-   public NestedSourceObject(String string) {
-      super();
-      this.string = string;
-   }
-
-
+   private DestinationObject parent;
 
    public String getString() {
       return string;
    }
 
-
+   public void setString(String string) {
+      this.string = string;
+   }
 
    public String getOtherString() {
       return otherString;
@@ -30,12 +25,12 @@ public class NestedSourceObject {
    }
 
    
-   public SourceObject getParent() {
+   public DestinationObject getParent() {
       return parent;
    }
 
    
-   public void setParent(SourceObject parent) {
+   public void setParent(DestinationObject parent) {
       this.parent = parent;
    }
 

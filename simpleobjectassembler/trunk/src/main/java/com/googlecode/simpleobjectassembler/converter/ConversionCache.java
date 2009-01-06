@@ -1,7 +1,9 @@
-package com.googlecode.simpleobjectassembler.impl;
+package com.googlecode.simpleobjectassembler.converter;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.googlecode.simpleobjectassembler.SimpleObjectAssembler;
 
 /**
  * Basic map cache of objects converted during the current invocation of

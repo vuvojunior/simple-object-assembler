@@ -1,5 +1,7 @@
 package com.googlecode.simpleobjectassembler;
 
+import com.googlecode.simpleobjectassembler.converter.ObjectConverter;
+
 /**
  * Converter registry
  * 

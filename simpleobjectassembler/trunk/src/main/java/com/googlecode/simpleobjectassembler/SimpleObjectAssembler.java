@@ -1,11 +1,13 @@
-package com.googlecode.simpleobjectassembler.impl;
+package com.googlecode.simpleobjectassembler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.googlecode.simpleobjectassembler.ConverterRegistry;
-import com.googlecode.simpleobjectassembler.ObjectAssembler;
-import com.googlecode.simpleobjectassembler.ObjectConverter;
+import com.googlecode.simpleobjectassembler.converter.CachingObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.ConversionCache;
+import com.googlecode.simpleobjectassembler.converter.ConversionException;
+import com.googlecode.simpleobjectassembler.converter.ConverterRegistryImpl;
+import com.googlecode.simpleobjectassembler.converter.ObjectConverter;
 import com.googlecode.simpleobjectassembler.utils.CglibUtils;
 
 /**

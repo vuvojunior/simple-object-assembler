@@ -1,9 +1,11 @@
-package com.googlecode.simpleobjectassembler.impl;
+package com.googlecode.simpleobjectassembler.converter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.googlecode.simpleobjectassembler.converter.AbstractObjectConverter;
 
 public class DestinationObjectProvidingObjectConverter extends AbstractObjectConverter<SourceObject, DestinationObject> {
 

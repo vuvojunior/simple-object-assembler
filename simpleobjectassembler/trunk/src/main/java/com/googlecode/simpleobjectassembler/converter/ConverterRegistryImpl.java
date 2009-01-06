@@ -1,10 +1,9 @@
-package com.googlecode.simpleobjectassembler.impl;
+package com.googlecode.simpleobjectassembler.converter;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.googlecode.simpleobjectassembler.ConverterRegistry;
-import com.googlecode.simpleobjectassembler.ObjectConverter;
 import com.googlecode.simpleobjectassembler.utils.CglibUtils;
 
 public class ConverterRegistryImpl implements ConverterRegistry {
@@ -12,7 +11,7 @@ public class ConverterRegistryImpl implements ConverterRegistry {
    private final Map<ConverterMappingKey, ObjectConverter<?, ?>> converterRegistry =
          new HashMap<ConverterMappingKey, ObjectConverter<?, ?>>();
 
-   ConverterRegistryImpl() {
+   public ConverterRegistryImpl() {
       // default
    }
 

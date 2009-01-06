@@ -1,4 +1,4 @@
-package com.googlecode.simpleobjectassembler.impl;
+package com.googlecode.simpleobjectassembler;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +9,18 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ObjectAssemblerImplTest {
+import com.googlecode.simpleobjectassembler.SimpleObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.ConversionException;
+import com.googlecode.simpleobjectassembler.converter.ConverterRegistryException;
+import com.googlecode.simpleobjectassembler.converter.DestinationObject;
+import com.googlecode.simpleobjectassembler.converter.DestinationObjectProvidingObjectConverter;
+import com.googlecode.simpleobjectassembler.converter.NestedObjectConverter;
+import com.googlecode.simpleobjectassembler.converter.NestedSourceObject;
+import com.googlecode.simpleobjectassembler.converter.SourceObject;
+import com.googlecode.simpleobjectassembler.converter.SourceToDestinationTestObjectConverter;
+import com.googlecode.simpleobjectassembler.converter.SourceToDestinationWithDifferentFieldNameObjectConverter;
+
+public class SimpleObjectAssemblerTest {
 
    private static final String OTHER_STRING = "otherString";
 

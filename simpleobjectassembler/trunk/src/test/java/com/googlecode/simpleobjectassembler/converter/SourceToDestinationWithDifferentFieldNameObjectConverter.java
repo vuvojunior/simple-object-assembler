@@ -1,6 +1,9 @@
-package com.googlecode.simpleobjectassembler.impl;
+package com.googlecode.simpleobjectassembler.converter;
 
 import java.util.Set;
+
+import com.googlecode.simpleobjectassembler.converter.AbstractObjectConverter;
+import com.googlecode.simpleobjectassembler.converter.ConverterFieldMapping;
 
 public class SourceToDestinationWithDifferentFieldNameObjectConverter extends AbstractObjectConverter<SourceObject, DestinationObject> {
 

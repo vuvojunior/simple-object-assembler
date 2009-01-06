@@ -1,4 +1,4 @@
-package com.googlecode.simpleobjectassembler.impl;
+package com.googlecode.simpleobjectassembler.converter;
 
 import com.googlecode.simpleobjectassembler.ConverterRegistry;
 import com.googlecode.simpleobjectassembler.ObjectAssembler;

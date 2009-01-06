@@ -1,6 +1,6 @@
-package com.googlecode.simpleobjectassembler;
+package com.googlecode.simpleobjectassembler.converter;
 
-import com.googlecode.simpleobjectassembler.impl.ConversionCache;
+import com.googlecode.simpleobjectassembler.ObjectAssembler;
 
 /**
  * A converter for converting a source object to a destination type. Should be used in combination with a single instance of an
@@ -29,13 +29,6 @@ public interface ObjectConverter <SourceObjectClass, DestinationObjectClass> {
     */
    DestinationObjectClass convert(SourceObjectClass sourceObject, ConversionCache conversionCache, String[] ignoreProperties);
 
-   /**
-    * Convert the sourceObject to the destinationObject type
-    * 
-    * @param sourceObject
-    * @return destinationObject
-    */
-   //DestinationObjectClass convert(SourceObjectClass sourceObject);
 
    /**
     * Map the source object to the destinationObject ignoring specific properties if supplied. A wildcard string "*" can be
