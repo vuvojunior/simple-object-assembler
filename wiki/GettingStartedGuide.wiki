@@ -63,9 +63,9 @@ You'll notice that this converter extends the AbstractObjectConverter which has 
 
 If you want to exclude any part of the object graph from automatically being converted, you can do so in three ways.
 
-#By overriding the 'disableAutoMapping()' method on your converter implementation and returning 'true'
-#By overriding the 'alwaysIgnoreProperties()' method on your converter and returning a Set of field names to exclude from conversion
-#By passing an array or var-args of property names to exclude into the assembler
+  #By overriding the 'disableAutoMapping()' method on your converter implementation and returning 'true'
+  #By overriding the 'alwaysIgnoreProperties()' method on your converter and returning a Set of field names to exclude from conversion
+  #By passing an array or var-args of property names to exclude into the assembler
 
 
 The first two approaches are useful when you want this behavior for every invocation of the converter but if you want to be able to specify what to convert upon invocation, the third approach is much more flexible.
