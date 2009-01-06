@@ -82,12 +82,12 @@ The ignore field paths are aware of nested object graphs so it's possible to ign
 DestinationObject destinationObject objectAssembler.assemble(sourceObject, DestinationClass.class, "ignoreCollection.fieldA", "ignoreFieldB.fieldValue");
 }}}
 
-This approach is very similar to web field binding except that collections are not indexed. This means that while you can refer to a field of an object within a collection, it will always apply to all objects in the collection, not any single one. For example you cannot specify 'ignoreCollection[0].fieldName' to ignore only the 'fieldName' property of the first element in the ignoreCollection. I can't think of a situation where this would be that useful. Having said that, adding this capability would be reasonably straight forward and may come later.
+This approach is very similar to web field binding except that collections are not indexed. This means that while you can refer to a field of an object within a collection, it will always apply to all objects in the collection, not any single one. For example you cannot specify '{{{ignoreCollection[0].fieldName}}}' to ignore only the '{{{fieldName}}}' property of the first element in the ignoreCollection. I can't think of a situation where this would be that useful. Having said that, adding this capability would be reasonably straight forward and may come later.
 
 
 ==Wildcard Exclusions==
 
-There are times when you want to convert an object that is a property of another but not actually convert any of it's properties. Say for example, you want to look up a staff member's manager from the database using the createDestinationObject(...) method (described below) and populate the manager field in the staff member but you don't want to actually map any of the ManagerDto fields onto the Manager object from the database. In this case you can use a wildcard in your ignorePath.
+There are times when you want to convert an object that is a property of another but not actually convert any of it's properties. Say for example, you want to look up a staff member's manager from the database using the {{{createDestinationObject(...)}}} method (described below) and populate the manager field in the staff member but you don't want to actually map any of the ManagerDto fields onto the Manager object from the database. In this case you can use a wildcard in your ignorePath.
 
 {{{
 StaffMember staffMember objectAssembler.assemble(staffMemberDto, StaffMember.class, "manager.*");
