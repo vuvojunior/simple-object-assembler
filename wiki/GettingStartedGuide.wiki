@@ -1,15 +1,10 @@
 #summary A getting started guide
 
-= Introduction =
+=Getting Started Guide=
 
-Pending some real documentation that will come before too long.  This is a very basic guide to get started.  It covers a couple of things that were missing from the [http://backtofront.squarespace.com/blog/2008/12/30/a-simple-object-assembler.html blog article].
+At this early stage Simple Object Assembler is not available in a public repository so if you're interested in using it you have a couple of options.  Either [http://code.google.com/p/simple-object-assembler/downloads/list download the latest version of the code] or [http://code.google.com/p/simple-object-assembler/source/checkout check it out from svn] and build it using maven.  If you're using maven on your project, you'll need to install Simple Object Assembler into your local repository [http://books.sonatype.com/maven-book/reference/repository-manager.html#d0e21974 like this]
 
-
-= Details =
-
-Firstly, download the latest version of the code or check it out from svn and build it using maven.  if you're running maven on your project, you'll need to install it into your local repository as there is not public repository version yet.
-
-Next add the following dependency to your project:
+Next add the following dependency to your project - obviously double check that the version is correct in case this documentation ever gets out of sync with the latest release:
 
 {{{
 <dependency>
@@ -19,11 +14,142 @@ Next add the following dependency to your project:
 </dependency> 
 }}}
 
-Once your project is correctly configured.  Add a bean definition to your spring application context for the object assembler:
+Once your project is correctly configured with the Simple Object Assembler on your classpath, add a bean definition to your spring application context for the object assembler:
 
 {{{
-<bean id="objectAssembler" class="com.googlecode.simpleobjectassembler.impl.SimpleObjectAssembler" />
+<bean id="objectAssembler" class="com.googlecode.simpleobjectassembler.SimpleObjectAssembler" />
 }}}
+
 
 Now you're ready to use the object assembler with any Converters you write.  For now refer back to the blog article for details.
 
+==3rd Party Dependencies==
+I've tried to make most of the dependencies optional or specified them with a scope of 'provided' in the maven dependency configuration.  This way you don't have to worry about conflicting versions of Spring for example.  There is a dependency on Spring 2+ and you will get less configuration if you have annotation based configuration enabled.
+
+For anyone not using annotation based configuration, each converter will need an init-method to be defined on the bean definition that calls postConstruct(), or will need to implement InitializingBean and explicitly call postConstruct().  Converters also need an instance of the objectAssembler to be injected via the setter.  Annotation based projects can skip all this.
+
+ 
+==Object Assembly / Conversion==
+
+The object assembler is the entry point to object conversion. It maintains a registry of Object Converters that are written by the application developer (that's you) to convert one object to another. The registry enables a single converter to exist for converting one type to another.  At this stage this is a conscious design decision, pending change if a case comes for allowing more. So far so good.
+
+When you want to convert an object and some or all of it's contents to another type you generally call the object assembler like this:
+
+{{{
+DestinationObject destinationObject objectAssembler.assemble(sourceObject, DestinationClass.class);
+}}}
+
+This will look up it's registry for a converter with the same source and destination combination. A converter in it's simplest form might look something like this:
+
+{{{
+public class SourceToDestinationTestObjectConverter extends    AbstractObjectConverter<SourceObject, DestinationObject> {
+
+  public Class<DestinationObject> getDestinationObjectClass() {
+     return DestinationObject.class;
+  }
+
+  public Class<SourceObject> getSourceObjectClass() {
+     return SourceObject.class;
+  }
+
+}
+}}}
+ 
+
+You'll notice that this converter extends the AbstractObjectConverter which has or defers to most of the conversion logic. The end result of calling this converter via the assembler as shown above is that all properties of the same name will be converted from the source to destination object. If two properties with the same name but different types are encountered, the registry will be consulted and the assembler will recursively call itself until all properties are converted.
+
+
+==Selective Conversion==
+
+If you want to exclude any part of the object graph from automatically being converted, you can do so in three ways.
+
+#By overriding the 'disableAutoMapping()' method on your converter implementation and returning 'true'
+#By overriding the 'alwaysIgnoreProperties()' method on your converter and returning a Set of field names to exclude from conversion
+#By passing an array or var-args of property names to exclude into the assembler
+
+
+The first two approaches are useful when you want this behavior for every invocation of the converter but if you want to be able to specify what to convert upon invocation, the third approach is much more flexible.
+
+For Example:
+
+{{{
+DestinationObject destinationObject objectAssembler.assemble(sourceObject, DestinationClass.class, "ignoreFieldA", "ignoreFieldB");
+}}}
+
+The ignore field paths are aware of nested object graphs so it's possible to ignore any part of the graph, no matter how deep.
+
+{{{
+DestinationObject destinationObject objectAssembler.assemble(sourceObject, DestinationClass.class, "ignoreCollection.fieldA", "ignoreFieldB.fieldValue");
+}}}
+
+This approach is very similar to web field binding except that collections are not indexed. This means that while you can refer to a field of an object within a collection, it will always apply to all objects in the collection, not any single one. For example you cannot specify 'ignoreCollection[0].fieldName' to ignore only the 'fieldName' property of the first element in the ignoreCollection. I can't think of a situation where this would be that useful. Having said that, adding this capability would be reasonably straight forward and may come later.
+
+
+==Wildcard Exclusions==
+
+There are times when you want to convert an object that is a property of another but not actually convert any of it's properties. Say for example, you want to look up a staff member's manager from the database using the createDestinationObject(...) method (described below) and populate the manager field in the staff member but you don't want to actually map any of the ManagerDto fields onto the Manager object from the database. In this case you can use a wildcard in your ignorePath.
+
+{{{
+StaffMember staffMember objectAssembler.assemble(staffMemberDto, StaffMember.class, "manager.*");
+}}}
+
+The effect of this is that the constructed destination object is simply returned from the converter and no conversion is performed on any of the fields. This also means that any custom conversion logic will be bypassed.
+
+==Mapping fields with different names==
+
+Sometimes your source and destination objects don't have the same names. In this case, it's possible to define pairs of 'source > destination' names for mapping. This is done at the converter level by overriding the 'customConverterFieldMappings()' method. This method should return a Set of ConverterFieldMappings that describe the source and destination field names.
+
+
+==Configuration Validation==
+
+It's easy to mistype a property name so you'll want some checking to make sure your property names actually exist. Due to the way converters are registered, this can't be done at startup time yet.  It relies on all converters being registered before it can correctly verify the existence of converters for combinations of source / destination types. It can be done on first execution though so it's easy to pick this up as part of your test suite. Any fields marked to ignore or fields mapped that don't exist will result in an exception with a clear indication as to the source of the problem.
+
+==Constructing your own Destination Object==
+
+The default behaviour is for the converter to attempt to construct a destination object based on it's destination type. This requires your destination object to have a default no-arg constructor. If you want to be able to construct your own object you can do this by overriding the createDestinationObject(SourceObject sourceObject) method. Because the sourceObject is passed into this method it's entirely possible to manually do some conversion in here. This however is not the intended place and it's possible that your values will be overridden during the actual conversion which happens next so it's not advised. There is a spectific method for this which i'll come to. This is however a good place to do things like retrieve an object from the database based on the id of the source object (the most common case), or use a factory to construct the destination object.
+
+Example of a Converter with the createDestinationObject method being used.
+
+
+{{{
+@Component
+public class UserDtoToUserConverter extends AbstractObjectConverter<UserDto, User> {
+
+  private UserDao userDao;
+
+  @Autowired
+  public UserDtoToUserConverter(UserDao userDao) {
+    super();
+    this.userDao = userDao;
+  }
+
+  @Override
+  public Appointment createDestinationObject(UserDto userDto) {
+    if (userDto.getId() == null) {
+       return new User();
+    } else {
+      return userDao.findById(userDto.getId());
+    }
+  }
+
+  public Class<UserDto> getSourceObjectClass() {
+    return UserDto.class;
+  }
+
+  public Class<User> getDestinationObjectClass() {
+    return User.class;
+  }
+
+}
+}}}
+
+==Custom Conversion Logic==
+
+There are cases where you need to perform some custom conversion logic in java because it's not simple enough to just map one field to another. In this case you can override the convert(SourceObject sourceObject, DestinationObject destinationObject) method. This is called after all auto conversion has been performed and enables any custom conversion to be done. If you wanted to perform a full custom conversion for a converter you simply override disableAutoMapping() to return true and write your custom logic here.
+
+
+==Some things to consider==
+
+This is not a perfect solution and it certainly won't make sense in all situations. Some people, justifiably will take issue with the idea of passing strings of property fields to ignore / exclude into the assembler. Somehow, I find this a bit awkward myself however i'm not sure that it's really all that different to putting it outside in an xml file. I feel this line is starting to be crossed with some implementations of annotations vs their xml configuration approaches. Sure, it's compiled code, but it's also a lot more visible at the point at which it matters so there are some clarity benefits there. It would also be possible to externalise this configuration as an option but the more that's done, the closer we get to Dozer which undeniably has a much deeper feature set and is almost certainly much 'smarter' under the hood with the benefit of years in the wild. The intention for this was a simple solution to a simple mapping problem, sitting halfway between Dozer and a fully handwritten approach. 
+
+Another potential problem comes about when new properties are introduced to objects that are already mapped. It's possible that an introduced relationship with another large part of the object graph could go unnoticed and result in conversion of much larger sets of objects than originally intended. I guess this is a trade off of taking blacklist vs whitelist approach for property mapping.  I am currently thinking of the best way to introduce the option to specify fields to Include rather than exclude.  This will be very easy to implement so it's not far off. 
