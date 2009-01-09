@@ -124,7 +124,7 @@ public class UserDtoToUserConverter extends AbstractObjectConverter<UserDto, Use
   }
 
   @Override
-  public Appointment createDestinationObject(UserDto userDto) {
+  public User createDestinationObject(UserDto userDto) {
     if (userDto.getId() == null) {
        return new User();
     } else {
