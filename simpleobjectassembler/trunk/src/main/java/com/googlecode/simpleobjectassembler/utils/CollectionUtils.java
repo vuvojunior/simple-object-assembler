@@ -16,7 +16,7 @@ public final class CollectionUtils {
   }
    
     @SuppressWarnings("unchecked")
-    public static <T> List<T> createFrom(final List sourceList) {
+    public static <T> List<T> createFrom(final List sourceList) { 
         final List<T> destinationList = new ArrayList<T>(sourceList.size());
         for (final Iterator iter = sourceList.iterator(); iter.hasNext();) {
             destinationList.add((T) iter.next());

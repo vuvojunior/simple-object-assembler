@@ -325,7 +325,8 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    }
 
    private boolean shouldMapFieldNames(final String sourceName, final String destinationName) {
-      return sourceName.equals(destinationName) || conversionMappingExists(sourceName, destinationName);
+      return ((sourceName.equals(destinationName) || conversionMappingExists(sourceName, destinationName)) 
+            && !alwaysIgnoreProperties().contains(destinationName));
    }
 
    private boolean conversionMappingExists(String sourceName, String destinationName) {
