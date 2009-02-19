@@ -77,13 +77,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
       }
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see
-    * au.com.australiapost.postzone.core.service.assembler.ObjectConverter#convert
-    * (java.lang.Object, java.lang.String[])
-    */
+  
    public final DestinationObjectClass convert(SourceObjectClass sourceObject, ConversionCache conversionCache,
          String[] ignoreProperties) {
 
@@ -91,13 +85,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
    }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see
-    * au.com.australiapost.postzone.core.service.assembler.ObjectConverter#convert
-    * (java.lang.Object, java.lang.Object, java.lang.String[])
-    */
+
    public final DestinationObjectClass convert(SourceObjectClass sourceObject,
          DestinationObjectClass destinationObject, ConversionCache conversionCache, String[] ignoreProperties) {
 
