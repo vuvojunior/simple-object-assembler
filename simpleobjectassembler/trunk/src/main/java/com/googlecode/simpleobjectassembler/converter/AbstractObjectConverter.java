@@ -161,7 +161,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    @PostConstruct
    public void postConstruct() {
       objectAssembler.registerConverter(this);
-      sameTypePropertyMapper = new SameTypePropertyMapper();
+      sameTypePropertyMapper = new SameTypePropertyMapper(objectAssembler);
       differentTypePropertyMapper = new DifferentTypePropertyMapper(objectAssembler);
       collectionPropertyMapper = new CollectionPropertyMapper(objectAssembler);
    }
@@ -285,6 +285,8 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
                   if (objectAssembler.converterExists(sourceType, destinationType)) {
                      conversionCandidatesOfDifferentType
                            .add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                  } else {
+                     throw new ConversionException(sourceType, destinationType);
                   }
                }
                else if (shouldMapFieldNames(sourceName, destinationName) && isSupportedCollection(sourceType)

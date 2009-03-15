@@ -41,6 +41,9 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
          return null;
       }
       final ObjectConverter objectConverter = converterRegistry.getConverter(sourceObject, destinationClass);
+      if(objectConverter == null) {
+         throw new ConversionException(sourceObject.getClass(), destinationClass);
+      }
       return (T) objectConverter.convert(sourceObject, conversionCache, ignoreProperties);
    }
 

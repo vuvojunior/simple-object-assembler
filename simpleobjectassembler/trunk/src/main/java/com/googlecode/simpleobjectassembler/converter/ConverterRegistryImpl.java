@@ -36,7 +36,7 @@ public class ConverterRegistryImpl implements ConverterRegistry {
       if (converterRegistry.containsKey(converterMappingKey)) {
          return converterRegistry.get(converterMappingKey);
       } else if (sourceObjectOrSuperClass.getSuperclass() == null || sourceObjectOrSuperClass.getSuperclass().equals(Object.class)) {
-         throw new ConversionException(sourceObjectClass, destinationClass);
+         return null;
       }
 
       return lookupConverterUsingSourceObjectHierarchy(sourceObjectClass, sourceObjectOrSuperClass.getSuperclass(), destinationClass);
