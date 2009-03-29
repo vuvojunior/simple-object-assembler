@@ -2,7 +2,7 @@
 
 =Getting Started Guide=
 
-At this early stage Simple Object Assembler is not available in a public repository so if you're interested in using it you have a couple of options.  Either [http://code.google.com/p/simple-object-assembler/downloads/list download the latest version of the code] or [http://code.google.com/p/simple-object-assembler/source/checkout check it out from svn] and build it using maven.  If you're using maven on your project, you'll need to install Simple Object Assembler into your local repository [http://books.sonatype.com/maven-book/reference/repository-manager.html#d0e21974 like this]
+At this early stage Simple Object Assembler is not available in a public maven repository so if you're interested in using it you have a couple of options.  Either [http://code.google.com/p/simple-object-assembler/downloads/list download the latest version of the code] or [http://code.google.com/p/simple-object-assembler/source/checkout check it out from svn] and build it using maven.  If you're using maven on your project, you'll need to install Simple Object Assembler into your local repository [http://books.sonatype.com/maven-book/reference/repository-manager.html#d0e21974 like this]
 
 Next add the following dependency to your project - obviously double check that the version is correct in case this documentation ever gets out of sync with the latest release:
 
