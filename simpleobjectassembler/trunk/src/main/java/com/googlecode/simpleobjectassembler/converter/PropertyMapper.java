@@ -7,8 +7,11 @@ import org.springframework.beans.PropertyAccessor;
 
 public interface PropertyMapper {
 
-   public abstract void mapProperties(List<PropertyDescriptorPair> conversionCandidates, Set<String> explicitIgnoreSet,
-         PropertyAccessor sourcePropertyAccessor, PropertyAccessor destinationPropertyAccessor,
-         ConversionCache conversionCache);
+   public abstract void mapProperties(List<PropertyDescriptorPair> conversionCandidates, 
+         Set<String> explicitIgnoreSet,
+         PropertyAccessor sourcePropertyAccessor, 
+         PropertyAccessor destinationPropertyAccessor,
+         ConversionCache conversionCache,
+         CachingObjectAssembler objectAssembler);
 
 }

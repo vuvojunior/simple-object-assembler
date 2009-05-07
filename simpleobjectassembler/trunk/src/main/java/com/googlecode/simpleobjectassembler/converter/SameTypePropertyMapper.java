@@ -7,17 +7,11 @@ import org.springframework.beans.PropertyAccessor;
 
 public class SameTypePropertyMapper extends AbstractPropertyMapper {
 
-private final CachingObjectAssembler objectAssembler;
-   
-   
-   public SameTypePropertyMapper(CachingObjectAssembler objectAssembler) {
-      super();
-      this.objectAssembler = objectAssembler;
-   }
    
    public void mapProperties(List<PropertyDescriptorPair> conversionCandidates,
          Set<String> explicitIgnoreSet, PropertyAccessor sourcePropertyAccessor,
-         PropertyAccessor destinationPropertyAccessor, ConversionCache conversionCache) {
+         PropertyAccessor destinationPropertyAccessor, ConversionCache conversionCache, 
+         CachingObjectAssembler objectAssembler) {
 
       for (PropertyDescriptorPair pdp : conversionCandidates) {
          final String sourcePropertyName = pdp.getSource().getName();

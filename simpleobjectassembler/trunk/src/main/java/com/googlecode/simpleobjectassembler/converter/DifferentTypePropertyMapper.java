@@ -7,18 +7,15 @@ import org.springframework.beans.PropertyAccessor;
 
 public class DifferentTypePropertyMapper extends AbstractPropertyMapper {
 
-   private final CachingObjectAssembler objectAssembler;
-   
-   
-   public DifferentTypePropertyMapper(CachingObjectAssembler objectAssembler) {
-      super();
-      this.objectAssembler = objectAssembler;
-   }
-
 
    public void mapProperties(List<PropertyDescriptorPair> conversionCandidates,
-         Set<String> explicitIgnoreSet, PropertyAccessor sourcePropertyAccessor,
-         PropertyAccessor destinationPropertyAccessor, ConversionCache conversionCache) {
+         Set<String> explicitIgnoreSet, 
+         PropertyAccessor sourcePropertyAccessor,
+         PropertyAccessor destinationPropertyAccessor, 
+         ConversionCache conversionCache,
+         CachingObjectAssembler objectAssembler) {
+      
+      
       // check each conversion candidate and convert if not explicitly set to
       // ignore
       for (PropertyDescriptorPair pdp : conversionCandidates) {

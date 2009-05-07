@@ -1,15 +1,20 @@
 package com.googlecode.simpleobjectassembler;
 
+import static org.easymock.EasyMock.expect;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import junit.framework.Assert;
 
+import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.googlecode.simpleobjectassembler.SimpleObjectAssembler;
 import com.googlecode.simpleobjectassembler.converter.ConversionException;
 import com.googlecode.simpleobjectassembler.converter.ConverterRegistryException;
 import com.googlecode.simpleobjectassembler.converter.DestinationObject;
@@ -19,6 +24,10 @@ import com.googlecode.simpleobjectassembler.converter.NestedSourceObject;
 import com.googlecode.simpleobjectassembler.converter.SourceObject;
 import com.googlecode.simpleobjectassembler.converter.SourceToDestinationTestObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.SourceToDestinationWithDifferentFieldNameObjectConverter;
+import com.googlecode.simpleobjectassembler.converter.StubEntity;
+import com.googlecode.simpleobjectassembler.converter.StubEntityDto;
+import com.googlecode.simpleobjectassembler.converter.persistence.EntityDao;
+import com.googlecode.simpleobjectassembler.utils.GenericTypeResolver;
 
 public class SimpleObjectAssemblerTest {
 
@@ -57,11 +66,10 @@ public class SimpleObjectAssemblerTest {
             .getNestedObjectList().get(1).getString());
       Assert.assertEquals(sourceObject.getNestedObjectSet().iterator().next().getString(), destinationObject
             .getNestedObjectSet().iterator().next().getString());
-      
+
       Assert.assertNull(destinationObject.getDifferentNameDestination());
       Assert.assertNull(destinationObject.getNestedObjectDifferentNameDestination());
       Assert.assertNull(destinationObject.getNestedObjectListDifferentNameDestination());
-      
 
    }
 
@@ -74,7 +82,7 @@ public class SimpleObjectAssemblerTest {
       Assert.assertNull(destinationObject.getString());
       Assert.assertEquals(2, destinationObject.getNestedObjectList().size());
    }
-   
+
    @Test
    public void shouldIgnorePropertiesWhenWildcardProvided() {
       final SourceObject sourceObject = createFullyPopulatedSourceObject();
@@ -199,12 +207,10 @@ public class SimpleObjectAssemblerTest {
          ;// Expected Exception.
       }
    }
-   
-   
+
    @Test
    public void shouldConvertAllPropertiesIncludingSpecifiedFieldsWithDifferentNames() {
 
-      
       // reset with different assembler and converters
       objectAssembler = new SimpleObjectAssembler();
 
@@ -215,7 +221,7 @@ public class SimpleObjectAssemblerTest {
       nestedObjectConverter = new NestedObjectConverter();
       nestedObjectConverter.setObjectAssembler(objectAssembler);
       nestedObjectConverter.postConstruct();
-      
+
       final SourceObject sourceObject = createFullyPopulatedSourceObject();
       final DestinationObject destinationObject = objectAssembler.assemble(sourceObject, DestinationObject.class);
 
@@ -227,25 +233,111 @@ public class SimpleObjectAssemblerTest {
             .getNestedObjectList().get(1).getString());
       Assert.assertEquals(sourceObject.getNestedObjectSet().iterator().next().getString(), destinationObject
             .getNestedObjectSet().iterator().next().getString());
-      
+
       Assert.assertEquals(sourceObject.getDifferentNameSource(), destinationObject.getDifferentNameDestination());
-      Assert.assertEquals(sourceObject.getNestedObjectDifferentNameSource().getString(), destinationObject.getNestedObjectDifferentNameDestination().getString());
-      Assert.assertEquals(sourceObject.getNestedObjectListDifferentNameSource().get(0).getString(), destinationObject.getNestedObjectListDifferentNameDestination().get(0).getString());
+      Assert.assertEquals(sourceObject.getNestedObjectDifferentNameSource().getString(), destinationObject
+            .getNestedObjectDifferentNameDestination().getString());
+      Assert.assertEquals(sourceObject.getNestedObjectListDifferentNameSource().get(0).getString(), destinationObject
+            .getNestedObjectListDifferentNameDestination().get(0).getString());
 
    }
-   
+
    @Test
    public void shouldHandleCircularRelationships() {
 
       final SourceObject sourceObject = createFullyPopulatedSourceObject();
-      for(NestedSourceObject nested : sourceObject.getNestedObjectList()) {
+      for (NestedSourceObject nested : sourceObject.getNestedObjectList()) {
          nested.setParent(sourceObject);
       }
-      
+
       final DestinationObject destinationObject = objectAssembler.assemble(sourceObject, DestinationObject.class);
-     
-      Assert.assertEquals(sourceObject.getString(), destinationObject.getNestedObjectList().get(0).getParent().getString());
-      
+
+      Assert.assertEquals(sourceObject.getString(), destinationObject.getNestedObjectList().get(0).getParent()
+            .getString());
+
+   }
+
+   @Test
+   public void testTypeConverterTypeInference() {
+      Assert.assertEquals(SourceObject.class, GenericTypeResolver.getParameterizedTypeByName("SourceObjectClass",
+            DestinationObjectProvidingObjectConverter.class));
+      Assert.assertEquals(DestinationObject.class, GenericTypeResolver.getParameterizedTypeByName(
+            "DestinationObjectClass", DestinationObjectProvidingObjectConverter.class));
+   }
+
+   @Test
+   public void shouldConvertAllPropertiesOfSameNameWhenUsingGenericConverter() {
+
+      // reset with no converters
+      objectAssembler = new SimpleObjectAssembler();
+      objectAssembler.setAutomapWhenNoConverterFound(true);
+
+      final SourceObject sourceObject = createFullyPopulatedSourceObject();
+      final DestinationObject destinationObject = objectAssembler.assemble(sourceObject, DestinationObject.class);
+
+      Assert.assertEquals(sourceObject.getString(), destinationObject.getString());
+      Assert.assertEquals(sourceObject.getNestedObject().getString(), destinationObject.getNestedObject().getString());
+      Assert.assertEquals(sourceObject.getNestedObjectList().get(0).getString(), destinationObject
+            .getNestedObjectList().get(0).getString());
+      Assert.assertEquals(sourceObject.getNestedObjectList().get(1).getString(), destinationObject
+            .getNestedObjectList().get(1).getString());
+      Assert.assertEquals(sourceObject.getNestedObjectSet().iterator().next().getString(), destinationObject
+            .getNestedObjectSet().iterator().next().getString());
+
+      Assert.assertNull(destinationObject.getDifferentNameDestination());
+      Assert.assertNull(destinationObject.getNestedObjectDifferentNameDestination());
+      Assert.assertNull(destinationObject.getNestedObjectListDifferentNameDestination());
+
+   }
+
+   @Test
+   public void shouldCallEntityDaoToFindEntityWhenNoConverterProvided() {
+
+      EntityDao mockEntityDao = EasyMock.createMock(EntityDao.class);
+
+      // reset with no converters
+      objectAssembler = new SimpleObjectAssembler();
+      objectAssembler.setAutomapWhenNoConverterFound(true);
+      objectAssembler.setEntityDao(mockEntityDao);
+
+      final StubEntityDto dto = new StubEntityDto();
+      dto.setId(1L);
+      dto.setName("name");
+
+      expect(mockEntityDao.findById(StubEntity.class, 1L)).andReturn(new StubEntity());
+
+      EasyMock.replay(mockEntityDao);
+
+      final StubEntity stubEntity = objectAssembler.assemble(dto, StubEntity.class);
+
+      EasyMock.verify(mockEntityDao);
+
+      assertThat(dto.getId(), is(stubEntity.getId()));
+      assertThat(dto.getName(), is(stubEntity.getName()));
+
+   }
+
+   @Test
+   public void shouldThrowExceptionWhenTringToMapNonDtoToEntityWhenNoConverterProvided() {
+
+      EntityDao mockEntityDao = EasyMock.createMock(EntityDao.class);
+
+      // reset with no converters
+      objectAssembler = new SimpleObjectAssembler();
+      objectAssembler.setAutomapWhenNoConverterFound(true);
+      objectAssembler.setEntityDao(mockEntityDao);
+
+      final SourceObject dto = new SourceObject();
+
+      try {
+         final StubEntity stubEntity = objectAssembler.assemble(dto, StubEntity.class);
+         fail("Expected exception");
+      }
+      catch (ConversionException e) {
+         System.out.println(e.getMessage());
+         ;// Expected exceptin
+      }
+
    }
 
    private SourceObject createFullyPopulatedSourceObject() {
@@ -253,7 +345,8 @@ public class SimpleObjectAssemblerTest {
       sourceObject.setString("string");
       sourceObject.setDifferentNameSource("differentName");
       sourceObject.setNestedObject(createFullyPopulatedNestedSourceObject("string1"));
-      sourceObject.setNestedObjectDifferentNameSource(createFullyPopulatedNestedSourceObject("nestedObjectDifferentName"));
+      sourceObject
+            .setNestedObjectDifferentNameSource(createFullyPopulatedNestedSourceObject("nestedObjectDifferentName"));
       final List<NestedSourceObject> list = new ArrayList<NestedSourceObject>();
       list.add(createFullyPopulatedNestedSourceObject("string2"));
       list.add(createFullyPopulatedNestedSourceObject("string3"));

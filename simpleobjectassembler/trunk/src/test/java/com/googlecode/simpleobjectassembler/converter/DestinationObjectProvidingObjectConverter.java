@@ -35,7 +35,7 @@ public class DestinationObjectProvidingObjectConverter extends AbstractObjectCon
       
       return destinationObject;
    }
-   
+  /* 
    public Class<DestinationObject> getDestinationObjectClass() {
       return DestinationObject.class;
    }
@@ -43,5 +43,5 @@ public class DestinationObjectProvidingObjectConverter extends AbstractObjectCon
    public Class<SourceObject> getSourceObjectClass() {
       return SourceObject.class;
    }
-
+*/
 }

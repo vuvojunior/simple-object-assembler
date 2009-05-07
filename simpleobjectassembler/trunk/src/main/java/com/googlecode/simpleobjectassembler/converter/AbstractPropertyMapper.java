@@ -15,8 +15,11 @@ public abstract class AbstractPropertyMapper implements PropertyMapper {
     * @see com.googlecode.simpleobjectassembler.converter.PropertyMapper#mapProperties(java.util.List, java.util.Set, org.springframework.beans.PropertyAccessor, org.springframework.beans.PropertyAccessor, com.googlecode.simpleobjectassembler.converter.ConversionCache)
     */
    public abstract void mapProperties(List<PropertyDescriptorPair> conversionCandidates,
-         Set<String> explicitIgnoreSet, PropertyAccessor sourcePropertyAccessor,
-         PropertyAccessor destinationPropertyAccessor, ConversionCache conversionCache);
+         Set<String> explicitIgnoreSet, 
+         PropertyAccessor sourcePropertyAccessor,
+         PropertyAccessor destinationPropertyAccessor, 
+         ConversionCache conversionCache,
+         CachingObjectAssembler objectAssembler);
    
    
    /**

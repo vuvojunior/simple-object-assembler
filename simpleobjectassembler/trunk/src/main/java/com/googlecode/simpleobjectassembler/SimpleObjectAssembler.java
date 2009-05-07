@@ -7,7 +7,9 @@ import com.googlecode.simpleobjectassembler.converter.CachingObjectAssembler;
 import com.googlecode.simpleobjectassembler.converter.ConversionCache;
 import com.googlecode.simpleobjectassembler.converter.ConversionException;
 import com.googlecode.simpleobjectassembler.converter.ConverterRegistryImpl;
+import com.googlecode.simpleobjectassembler.converter.GenericConverter;
 import com.googlecode.simpleobjectassembler.converter.ObjectConverter;
+import com.googlecode.simpleobjectassembler.converter.persistence.EntityDao;
 import com.googlecode.simpleobjectassembler.utils.CglibUtils;
 
 /**
@@ -20,6 +22,10 @@ import com.googlecode.simpleobjectassembler.utils.CglibUtils;
 public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAssembler {
 
    private static final Log LOG = LogFactory.getLog(SimpleObjectAssembler.class);
+
+   private boolean automapWhenNoConverterFound = false;
+
+   private EntityDao entityDao;
 
    private final ConverterRegistry converterRegistry = new ConverterRegistryImpl();
 
@@ -40,10 +46,25 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
       if (sourceObject == null) {
          return null;
       }
-      final ObjectConverter objectConverter = converterRegistry.getConverter(sourceObject, destinationClass);
-      if(objectConverter == null) {
+
+      ObjectConverter objectConverter = converterRegistry.getConverter(sourceObject, destinationClass);
+
+      if (objectConverter == null && automapWhenNoConverterFound) {
+         try {
+            objectConverter = new GenericConverter((CachingObjectAssembler) this, CglibUtils
+                  .resolveTargetClassIfProxied(sourceObject), destinationClass);
+         }
+         catch (ClassNotFoundException e) {
+            // This shouldn't be possible
+            LOG.error(e.getMessage());
+            throw new ConversionException("Could not load class", e);
+         }
+
+      }
+      else if (objectConverter == null) {
          throw new ConversionException(sourceObject.getClass(), destinationClass);
       }
+
       return (T) objectConverter.convert(sourceObject, conversionCache, ignoreProperties);
    }
 
@@ -80,6 +101,24 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
 
    public ObjectConverter<?, ?> getConverter(Object sourceObject, Class<?> destinationClass) {
       return this.converterRegistry.getConverter(sourceObject, destinationClass);
+   }
+
+   public boolean isAutomapWhenNoConverterFound() {
+      return automapWhenNoConverterFound;
+   }
+
+   public void setAutomapWhenNoConverterFound(boolean automapWhenNoConverterFound) {
+      this.automapWhenNoConverterFound = automapWhenNoConverterFound;
+   }
+
+   
+   public EntityDao getEntityDao() {
+      return entityDao;
+   }
+
+   
+   public void setEntityDao(EntityDao entityDao) {
+      this.entityDao = entityDao;
    }
 
 }

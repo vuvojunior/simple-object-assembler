@@ -13,15 +13,6 @@ import com.googlecode.simpleobjectassembler.utils.CollectionUtils;
 
 public class CollectionPropertyMapper extends AbstractPropertyMapper {
 
-   private final CachingObjectAssembler objectAssembler;
-   
-   
-   public CollectionPropertyMapper(CachingObjectAssembler objectAssembler) {
-      super();
-      this.objectAssembler = objectAssembler;
-   }
-
-
    /**
     * Convert collection properties using mapped converters where registered.
     * Destination collections of the same size as source collections will map
@@ -36,8 +27,11 @@ public class CollectionPropertyMapper extends AbstractPropertyMapper {
     * @param destinationPropertyAccessor
     */
    public void mapProperties(List<PropertyDescriptorPair> conversionCandidates, final Set<String> explicitIgnoreSet,
-         final PropertyAccessor sourcePropertyAccessor, final PropertyAccessor destinationPropertyAccessor,
-         ConversionCache conversionCache) {
+         final PropertyAccessor sourcePropertyAccessor, 
+         final PropertyAccessor destinationPropertyAccessor,
+         ConversionCache conversionCache,
+         CachingObjectAssembler objectAssembler) {
+      
       for (PropertyDescriptorPair pdp : conversionCandidates) {
          final String sourcePropertyName = pdp.getSource().getName();
          final String destinationPropertyName = pdp.getDestination().getName();

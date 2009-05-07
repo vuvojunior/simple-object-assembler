@@ -25,16 +25,21 @@ import org.springframework.util.ReflectionUtils;
 
 import com.googlecode.simpleobjectassembler.ObjectAssembler;
 import com.googlecode.simpleobjectassembler.utils.CollectionUtils;
+import com.googlecode.simpleobjectassembler.utils.GenericTypeResolver;
 
 public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObjectClass> implements
       ObjectConverter<SourceObjectClass, DestinationObjectClass> {
+
+   private static final String DESTINATION_OBJECT_CLASS_PARAM_TYPE_NAME = "DestinationObjectClass";
+
+   private static final String SOURCE_OBJECT_CLASS_PARAM_TYPE_NAME = "SourceObjectClass";
 
    private static final String[] DEFAULT_PROPERTIES_TO_IGNORE = new String[] { "class" };
 
    private static final String PROPERTY_EXCLUSION_WILDCARD_CHARACTER = "*";
 
    private CachingObjectAssembler objectAssembler;
-   
+
    private boolean initialised = false;
 
    private Set<ConverterFieldMapping> sourceToDestinationFieldMappings;
@@ -45,14 +50,14 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
    private final List<PropertyDescriptorPair> collectionConversionCandidates = new ArrayList<PropertyDescriptorPair>();
 
-   private PropertyMapper sameTypePropertyMapper;
+   private PropertyMapper sameTypePropertyMapper = new SameTypePropertyMapper();
+
+   private PropertyMapper differentTypePropertyMapper = new DifferentTypePropertyMapper();
+
+   private PropertyMapper collectionPropertyMapper = new CollectionPropertyMapper();
    
-   private PropertyMapper differentTypePropertyMapper;
-   
-   private PropertyMapper collectionPropertyMapper;
-   
-   
-   
+  
+
    /**
     * Creates an instance of the destination object reflectively. Override this
     * method if special object construction is required. The sourceObject passed
@@ -77,14 +82,12 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
       }
    }
 
-  
    public final DestinationObjectClass convert(SourceObjectClass sourceObject, ConversionCache conversionCache,
          String[] ignoreProperties) {
 
       return convert(sourceObject, createDestinationObject(sourceObject), conversionCache, ignoreProperties);
 
    }
-
 
    public final DestinationObjectClass convert(SourceObjectClass sourceObject,
          DestinationObjectClass destinationObject, ConversionCache conversionCache, String[] ignoreProperties) {
@@ -114,11 +117,14 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
          final PropertyAccessor sourcePropertyAccessor = new DirectFieldAccessor(sourceObject);
          final PropertyAccessor destinationPropertyAccessor = new DirectFieldAccessor(destinationObject);
-         
-         sameTypePropertyMapper.mapProperties(conversionCandidatesOfSameType, explicitIgnoreSet, sourcePropertyAccessor, destinationPropertyAccessor, conversionCache);
-         differentTypePropertyMapper.mapProperties(conversionCandidatesOfDifferentType, explicitIgnoreSet, sourcePropertyAccessor, destinationPropertyAccessor, conversionCache);
-         collectionPropertyMapper.mapProperties(collectionConversionCandidates, explicitIgnoreSet, sourcePropertyAccessor, destinationPropertyAccessor, conversionCache);
-         
+
+         sameTypePropertyMapper.mapProperties(conversionCandidatesOfSameType, explicitIgnoreSet,
+               sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
+         differentTypePropertyMapper.mapProperties(conversionCandidatesOfDifferentType, explicitIgnoreSet,
+               sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
+         collectionPropertyMapper.mapProperties(collectionConversionCandidates, explicitIgnoreSet,
+               sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
+
       }
 
       if (!fullIgnoreSet.contains(PROPERTY_EXCLUSION_WILDCARD_CHARACTER)) {
@@ -161,9 +167,6 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    @PostConstruct
    public void postConstruct() {
       objectAssembler.registerConverter(this);
-      sameTypePropertyMapper = new SameTypePropertyMapper(objectAssembler);
-      differentTypePropertyMapper = new DifferentTypePropertyMapper(objectAssembler);
-      collectionPropertyMapper = new CollectionPropertyMapper(objectAssembler);
    }
 
    @Autowired
@@ -243,10 +246,6 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
    }
 
-   
-   
-   
-
    /**
     * Initialises list of incompatible fields and registers converter candidates
     * based on other registered converters. This must execute after all
@@ -259,11 +258,11 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    private void initialiseFieldMappingIfRequired() {
 
       if (!initialised) {
-         
+
          final PropertyDescriptor[] sourcePds = BeanUtils.getPropertyDescriptors(getSourceObjectClass());
          final PropertyDescriptor[] destinationPds = BeanUtils.getPropertyDescriptors(getDestinationObjectClass());
          final Map<String, Field> writableDestinationFields = new HashMap<String, Field>();
-         
+
          ReflectionUtils.doWithFields(getDestinationObjectClass(), new ReflectionUtils.FieldCallback() {
 
             public void doWith(Field field) {
@@ -272,10 +271,12 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
          }, ReflectionUtils.COPYABLE_FIELDS);
 
          for (int i = 0; i < sourcePds.length; i++) {
+
+            final String sourceName = sourcePds[i].getName();
+            final Class<?> sourceType = sourcePds[i].getPropertyType();
+
             for (int j = 0; j < destinationPds.length; j++) {
 
-               final String sourceName = sourcePds[i].getName();
-               final Class<?> sourceType = sourcePds[i].getPropertyType();
                final String destinationName = destinationPds[j].getName();
                final Class<?> destinationType = destinationPds[j].getPropertyType();
 
@@ -283,16 +284,19 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
                      && writableDestinationFields.containsKey(destinationName)) {
 
                   if (objectAssembler.converterExists(sourceType, destinationType)) {
-                     conversionCandidatesOfDifferentType
-                           .add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
-                  } else {
+                     conversionCandidatesOfDifferentType.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                  }
+                  else if( objectAssembler.isAutomapWhenNoConverterFound()) {
+                     objectAssembler.registerConverter(new GenericConverter(objectAssembler, sourceType, destinationType));
+                     conversionCandidatesOfDifferentType.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                  }
+                  else {
                      throw new ConversionException(sourceType, destinationType);
                   }
                }
                else if (shouldMapFieldNames(sourceName, destinationName) && isSupportedCollection(sourceType)
                      && !CollectionUtils.hasSameGenericCollectionType(sourcePds[i], destinationPds[j])
                      && writableDestinationFields.containsKey(destinationName)) {
-
 
                   final Class<?> genericDestinationCollectionType = GenericCollectionTypeResolver
                         .getCollectionReturnType(destinationPds[j].getReadMethod());
@@ -315,8 +319,8 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    }
 
    private boolean shouldMapFieldNames(final String sourceName, final String destinationName) {
-      return ((sourceName.equals(destinationName) || conversionMappingExists(sourceName, destinationName)) 
-            && !alwaysIgnoreProperties().contains(destinationName));
+      return ((sourceName.equals(destinationName) || conversionMappingExists(sourceName, destinationName)) && !alwaysIgnoreProperties()
+            .contains(destinationName));
    }
 
    private boolean conversionMappingExists(String sourceName, String destinationName) {
@@ -328,11 +332,18 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
       return sourceToDestinationFieldMappings.contains(converterFieldMapping);
    }
 
-
    private boolean isSupportedCollection(Class<?> sourceType) {
       return Collection.class.isAssignableFrom(sourceType);
    }
 
    
+   
+   public Class<SourceObjectClass> getSourceObjectClass() {
+      return GenericTypeResolver.getParameterizedTypeByName(SOURCE_OBJECT_CLASS_PARAM_TYPE_NAME, this.getClass());
+   }
+
+   public Class<DestinationObjectClass> getDestinationObjectClass() {
+      return GenericTypeResolver.getParameterizedTypeByName(DESTINATION_OBJECT_CLASS_PARAM_TYPE_NAME, this.getClass());
+   }
 
 }
