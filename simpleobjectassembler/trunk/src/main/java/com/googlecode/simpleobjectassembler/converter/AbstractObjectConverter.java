@@ -24,6 +24,15 @@ import org.springframework.core.GenericCollectionTypeResolver;
 import org.springframework.util.ReflectionUtils;
 
 import com.googlecode.simpleobjectassembler.ObjectAssembler;
+import com.googlecode.simpleobjectassembler.beans.FallbackPropertyAccessor;
+import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
+import com.googlecode.simpleobjectassembler.converter.mapping.CollectionPropertyMapper;
+import com.googlecode.simpleobjectassembler.converter.mapping.ConverterFieldMapping;
+import com.googlecode.simpleobjectassembler.converter.mapping.DifferentTypePropertyMapper;
+import com.googlecode.simpleobjectassembler.converter.mapping.PropertyDescriptorPair;
+import com.googlecode.simpleobjectassembler.converter.mapping.PropertyMapper;
+import com.googlecode.simpleobjectassembler.converter.mapping.SameTypePropertyMapper;
 import com.googlecode.simpleobjectassembler.utils.CollectionUtils;
 import com.googlecode.simpleobjectassembler.utils.GenericTypeResolver;
 
@@ -115,8 +124,8 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
       if (!disableAutoMapping() && !fullIgnoreSet.contains(PROPERTY_EXCLUSION_WILDCARD_CHARACTER)) {
 
-         final PropertyAccessor sourcePropertyAccessor = new DirectFieldAccessor(sourceObject);
-         final PropertyAccessor destinationPropertyAccessor = new DirectFieldAccessor(destinationObject);
+         final PropertyAccessor sourcePropertyAccessor = new FallbackPropertyAccessor(sourceObject);
+         final PropertyAccessor destinationPropertyAccessor = new FallbackPropertyAccessor(destinationObject);
 
          sameTypePropertyMapper.mapProperties(conversionCandidatesOfSameType, explicitIgnoreSet,
                sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
@@ -319,6 +328,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    }
 
    private boolean shouldMapFieldNames(final String sourceName, final String destinationName) {
+
       return ((sourceName.equals(destinationName) || conversionMappingExists(sourceName, destinationName)) && !alwaysIgnoreProperties()
             .contains(destinationName));
    }
@@ -336,12 +346,22 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
       return Collection.class.isAssignableFrom(sourceType);
    }
 
-   
-   
+   /**
+    * Default implementation that infers the source object class from the
+    * class's parameterized generic types
+    * 
+    * @see com.googlecode.simpleobjectassembler.converter.ObjectConverter#getSourceObjectClass()
+    */
    public Class<SourceObjectClass> getSourceObjectClass() {
       return GenericTypeResolver.getParameterizedTypeByName(SOURCE_OBJECT_CLASS_PARAM_TYPE_NAME, this.getClass());
    }
 
+   /**
+    * Default implementation that infers the destination object class from the
+    * class's parameterized generic types
+    * 
+    * @see com.googlecode.simpleobjectassembler.converter.ObjectConverter#getDestinationObjectClass()
+    */
    public Class<DestinationObjectClass> getDestinationObjectClass() {
       return GenericTypeResolver.getParameterizedTypeByName(DESTINATION_OBJECT_CLASS_PARAM_TYPE_NAME, this.getClass());
    }

@@ -1,4 +1,4 @@
-package com.googlecode.simpleobjectassembler.converter;
+package com.googlecode.simpleobjectassembler.converter.mapping;
 
 /**
  * Represents a mapping of a source field name to a destination field name. Use

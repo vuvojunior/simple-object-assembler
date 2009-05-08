@@ -1,4 +1,4 @@
-package com.googlecode.simpleobjectassembler.converter;
+package com.googlecode.simpleobjectassembler.converter.cache;
 
 import java.util.HashMap;
 import java.util.Map;

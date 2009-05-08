@@ -1,6 +1,6 @@
 package com.googlecode.simpleobjectassembler;
 
-import com.googlecode.simpleobjectassembler.converter.persistence.EntityDao;
+import com.googlecode.simpleobjectassembler.converter.dao.EntityDao;
 
 /**
  * <p>
@@ -88,9 +88,20 @@ public interface ObjectAssembler extends ConverterRegistry {
     * @param ignoreProperties
     */
    <T> T assemble(Object sourceObject, T destinationObject, String... ignoreProperties);
-   
+
+   /**
+    * Should the assembler attempt to automatically convert objects based purely
+    * on reflection if no specific converter is found.
+    * 
+    * @return
+    */
    boolean isAutomapWhenNoConverterFound();
-   
+
+   /**
+    * Get the EntityDao, if one exists from the assembler.
+    * 
+    * @return
+    */
    EntityDao<? extends Object> getEntityDao();
 
 }

@@ -1,9 +1,12 @@
-package com.googlecode.simpleobjectassembler.converter;
+package com.googlecode.simpleobjectassembler.registry;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import com.googlecode.simpleobjectassembler.ConverterRegistry;
+import com.googlecode.simpleobjectassembler.converter.ConversionException;
+import com.googlecode.simpleobjectassembler.converter.ObjectConverter;
+import com.googlecode.simpleobjectassembler.converter.mapping.ConverterMappingKey;
 import com.googlecode.simpleobjectassembler.utils.CglibUtils;
 
 public class ConverterRegistryImpl implements ConverterRegistry {

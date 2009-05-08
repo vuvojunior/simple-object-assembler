@@ -1,9 +1,12 @@
-package com.googlecode.simpleobjectassembler.converter;
+package com.googlecode.simpleobjectassembler.converter.cache;
 
 import com.googlecode.simpleobjectassembler.ObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.AbstractObjectConverter;
+import com.googlecode.simpleobjectassembler.converter.ObjectConverter;
 
 /**
- * Internal interface to be used when calling code is going to pass a conversion cache into assemble methods. Primarily used by
+ * Internal interface to be used when calling code is going to pass a conversion
+ * cache into assemble methods. Primarily used by
  * {@link AbstractObjectConverter}
  * 
  * @author robmonie
@@ -13,7 +16,8 @@ public interface CachingObjectAssembler extends ObjectAssembler {
 
    <T> T assemble(Object sourceObject, ConversionCache conversionCache, Class<T> destinationClass);
 
-   <T> T assemble(Object sourceObject, Class<T> destinationClass, ConversionCache conversionCache, String... ignoreProperties);
+   <T> T assemble(Object sourceObject, Class<T> destinationClass, ConversionCache conversionCache,
+         String... ignoreProperties);
 
    <T> T assemble(Object sourceObject, T destinationObject, ConversionCache conversionCache, String... ignoreProperties);
 

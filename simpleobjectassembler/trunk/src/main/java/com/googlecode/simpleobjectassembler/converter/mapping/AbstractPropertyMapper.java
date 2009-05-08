@@ -1,4 +1,4 @@
-package com.googlecode.simpleobjectassembler.converter;
+package com.googlecode.simpleobjectassembler.converter.mapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,9 @@ import java.util.Set;
 
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.util.StringUtils;
+
+import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
 
 
 public abstract class AbstractPropertyMapper implements PropertyMapper {

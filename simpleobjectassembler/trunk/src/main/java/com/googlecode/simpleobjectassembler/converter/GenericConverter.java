@@ -7,7 +7,8 @@ import org.springframework.beans.PropertyAccessor;
 import org.springframework.core.annotation.AnnotationUtils;
 
 import com.googlecode.simpleobjectassembler.annotation.EntityDto;
-import com.googlecode.simpleobjectassembler.converter.persistence.EntityDao;
+import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.dao.EntityDao;
 
 public class GenericConverter extends AbstractObjectConverter<Object, Object> {
 
@@ -37,12 +38,12 @@ public class GenericConverter extends AbstractObjectConverter<Object, Object> {
 
          if (entityAnnotation != null && dtoAnnotation != null) {
             final PropertyAccessor propertyAccessor = new DirectFieldAccessor(sourceObject);
-            return  entityDao.findById(getDestinationObjectClass(), (Long) propertyAccessor
-                  .getPropertyValue(dtoAnnotation.id()));
-         }
-         else {
-
-            if (entityAnnotation != null && dtoAnnotation == null) {
+            final Long destinationObjectId = (Long) propertyAccessor.getPropertyValue(dtoAnnotation.id());
+            
+            if(destinationObjectId != null) {
+               return  entityDao.findById(getDestinationObjectClass(), destinationObjectId);
+            }
+         } else if (entityAnnotation != null && dtoAnnotation == null) {
                throw new ConversionException(
                      "Attempt to automatically convert an instance of "
                            + getSourceObjectClass()
@@ -52,15 +53,13 @@ public class GenericConverter extends AbstractObjectConverter<Object, Object> {
                            + " Without this, the identifier for retrieving an instance of the destination "
                            + "entity cannot be resolved. Please annotate " + getSourceObjectClass()
                            + " with the EntityDto annotation or write a custom converter for this pair.");
-            }
+            
 
-            return super.createDestinationObject(sourceObject);
          }
 
       }
-      else {
-         return super.createDestinationObject(sourceObject);
-      }
+      
+      return super.createDestinationObject(sourceObject);
    }
 
    public Class getSourceObjectClass() {

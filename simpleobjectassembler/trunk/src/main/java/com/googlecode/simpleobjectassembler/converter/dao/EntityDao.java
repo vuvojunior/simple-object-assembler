@@ -1,4 +1,4 @@
-package com.googlecode.simpleobjectassembler.converter.persistence;
+package com.googlecode.simpleobjectassembler.converter.dao;
 
 
 public interface EntityDao<T> {

@@ -1,4 +1,4 @@
-package com.googlecode.simpleobjectassembler.converter;
+package com.googlecode.simpleobjectassembler.converter.cache;
 
 /**
  * Used for caching sourceObject and destination type during conversion. Can be used to lookup previously converted objects to

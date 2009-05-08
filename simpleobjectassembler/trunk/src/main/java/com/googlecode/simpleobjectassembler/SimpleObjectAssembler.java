@@ -3,13 +3,14 @@ package com.googlecode.simpleobjectassembler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.googlecode.simpleobjectassembler.converter.CachingObjectAssembler;
-import com.googlecode.simpleobjectassembler.converter.ConversionCache;
 import com.googlecode.simpleobjectassembler.converter.ConversionException;
-import com.googlecode.simpleobjectassembler.converter.ConverterRegistryImpl;
+import com.googlecode.simpleobjectassembler.converter.DefaultConverters;
 import com.googlecode.simpleobjectassembler.converter.GenericConverter;
 import com.googlecode.simpleobjectassembler.converter.ObjectConverter;
-import com.googlecode.simpleobjectassembler.converter.persistence.EntityDao;
+import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
+import com.googlecode.simpleobjectassembler.converter.dao.EntityDao;
+import com.googlecode.simpleobjectassembler.registry.ConverterRegistryImpl;
 import com.googlecode.simpleobjectassembler.utils.CglibUtils;
 
 /**
@@ -26,8 +27,15 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
    private boolean automapWhenNoConverterFound = false;
 
    private EntityDao entityDao;
-
+   
    private final ConverterRegistry converterRegistry = new ConverterRegistryImpl();
+   
+   
+   public SimpleObjectAssembler() {
+      for(ObjectConverter converter : new DefaultConverters(this).getConverters()) {
+         registerConverter(converter);
+      }
+   }
 
    public <T> T assemble(Object sourceObject, Class<T> destinationClass) {
       return assemble(sourceObject, destinationClass, new ConversionCache(), new String[] {});

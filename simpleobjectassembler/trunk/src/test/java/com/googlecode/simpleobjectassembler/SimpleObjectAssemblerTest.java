@@ -2,6 +2,7 @@ package com.googlecode.simpleobjectassembler;
 
 import static org.easymock.EasyMock.expect;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -16,17 +17,19 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.googlecode.simpleobjectassembler.converter.ConversionException;
-import com.googlecode.simpleobjectassembler.converter.ConverterRegistryException;
 import com.googlecode.simpleobjectassembler.converter.DestinationObject;
 import com.googlecode.simpleobjectassembler.converter.DestinationObjectProvidingObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.NestedObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.NestedSourceObject;
+import com.googlecode.simpleobjectassembler.converter.ObjectContainingGetterWithNoProperty;
+import com.googlecode.simpleobjectassembler.converter.ObjectWithSetterForAugmentedGetter;
 import com.googlecode.simpleobjectassembler.converter.SourceObject;
 import com.googlecode.simpleobjectassembler.converter.SourceToDestinationTestObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.SourceToDestinationWithDifferentFieldNameObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.StubEntity;
 import com.googlecode.simpleobjectassembler.converter.StubEntityDto;
-import com.googlecode.simpleobjectassembler.converter.persistence.EntityDao;
+import com.googlecode.simpleobjectassembler.converter.dao.EntityDao;
+import com.googlecode.simpleobjectassembler.registry.ConverterRegistryException;
 import com.googlecode.simpleobjectassembler.utils.GenericTypeResolver;
 
 public class SimpleObjectAssemblerTest {
@@ -45,7 +48,6 @@ public class SimpleObjectAssemblerTest {
 
       sourceToDestinationTestObjectConverter.setObjectAssembler(objectAssembler);
       sourceToDestinationTestObjectConverter.postConstruct();
-
       nestedObjectConverter = new NestedObjectConverter();
       nestedObjectConverter.setObjectAssembler(objectAssembler);
       nestedObjectConverter.postConstruct();
@@ -293,7 +295,7 @@ public class SimpleObjectAssemblerTest {
    @Test
    public void shouldCallEntityDaoToFindEntityWhenNoConverterProvided() {
 
-      EntityDao mockEntityDao = EasyMock.createMock(EntityDao.class);
+      final EntityDao mockEntityDao = EasyMock.createMock(EntityDao.class);
 
       // reset with no converters
       objectAssembler = new SimpleObjectAssembler();
@@ -316,11 +318,35 @@ public class SimpleObjectAssemblerTest {
       assertThat(dto.getName(), is(stubEntity.getName()));
 
    }
+   
+   @Test
+   public void shouldNotCallEntityDaoToFindEntityWhenNoConverterProvidedAndDtoHasNullId() {
+
+      final EntityDao mockEntityDao = EasyMock.createMock(EntityDao.class);
+
+      // reset with no converters
+      objectAssembler = new SimpleObjectAssembler();
+      objectAssembler.setAutomapWhenNoConverterFound(true);
+      objectAssembler.setEntityDao(mockEntityDao);
+
+      final StubEntityDto dto = new StubEntityDto();
+      dto.setName("name");
+
+      EasyMock.replay(mockEntityDao); // no expectations
+
+      final StubEntity stubEntity = objectAssembler.assemble(dto, StubEntity.class);
+
+      EasyMock.verify(mockEntityDao);
+
+      assertThat(dto.getId(), is(stubEntity.getId()));
+      assertThat(dto.getName(), is(stubEntity.getName()));
+
+   }
 
    @Test
-   public void shouldThrowExceptionWhenTringToMapNonDtoToEntityWhenNoConverterProvided() {
+   public void shouldThrowExceptionWhenTryingToMapNonDtoToEntityWhenNoConverterProvided() {
 
-      EntityDao mockEntityDao = EasyMock.createMock(EntityDao.class);
+      final EntityDao mockEntityDao = EasyMock.createMock(EntityDao.class);
 
       // reset with no converters
       objectAssembler = new SimpleObjectAssembler();
@@ -334,11 +360,30 @@ public class SimpleObjectAssemblerTest {
          fail("Expected exception");
       }
       catch (ConversionException e) {
-         System.out.println(e.getMessage());
-         ;// Expected exceptin
+         ;// Expected exception
       }
 
    }
+
+   @Test
+   public void shouldFallBackToMethodAccessWhenGetterHasNoProperty() {
+
+      final ObjectContainingGetterWithNoProperty source = new ObjectContainingGetterWithNoProperty();
+      source.getString();
+
+      objectAssembler = new SimpleObjectAssembler();
+      objectAssembler.setAutomapWhenNoConverterFound(true);
+      
+      ObjectWithSetterForAugmentedGetter destination = objectAssembler.assemble(source,
+            ObjectWithSetterForAugmentedGetter.class);
+      
+      assertEquals(source.getAugmentedString(), destination.getAugmentedString());
+      assertEquals(Integer.valueOf(source.getNumber()), destination.getNumber());
+      assertEquals("string", destination.getList().get(0));
+      
+   }
+   
+
 
    private SourceObject createFullyPopulatedSourceObject() {
       final SourceObject sourceObject = new SourceObject();

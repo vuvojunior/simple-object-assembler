@@ -1,4 +1,4 @@
-package com.googlecode.simpleobjectassembler.converter;
+package com.googlecode.simpleobjectassembler.converter.mapping;
 
 import java.beans.PropertyDescriptor;
 

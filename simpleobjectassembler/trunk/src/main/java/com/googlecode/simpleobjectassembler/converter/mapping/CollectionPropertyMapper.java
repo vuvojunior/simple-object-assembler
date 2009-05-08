@@ -1,4 +1,4 @@
-package com.googlecode.simpleobjectassembler.converter;
+package com.googlecode.simpleobjectassembler.converter.mapping;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,8 +7,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.DirectFieldAccessor;
+import org.springframework.beans.NotReadablePropertyException;
 import org.springframework.beans.PropertyAccessor;
 
+import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
 import com.googlecode.simpleobjectassembler.utils.CollectionUtils;
 
 public class CollectionPropertyMapper extends AbstractPropertyMapper {
@@ -27,11 +32,9 @@ public class CollectionPropertyMapper extends AbstractPropertyMapper {
     * @param destinationPropertyAccessor
     */
    public void mapProperties(List<PropertyDescriptorPair> conversionCandidates, final Set<String> explicitIgnoreSet,
-         final PropertyAccessor sourcePropertyAccessor, 
-         final PropertyAccessor destinationPropertyAccessor,
-         ConversionCache conversionCache,
-         CachingObjectAssembler objectAssembler) {
-      
+         final PropertyAccessor sourcePropertyAccessor, final PropertyAccessor destinationPropertyAccessor,
+         ConversionCache conversionCache, CachingObjectAssembler objectAssembler) {
+
       for (PropertyDescriptorPair pdp : conversionCandidates) {
          final String sourcePropertyName = pdp.getSource().getName();
          final String destinationPropertyName = pdp.getDestination().getName();
@@ -40,12 +43,13 @@ public class CollectionPropertyMapper extends AbstractPropertyMapper {
             final Class<?> destinationCollectionType = destinationPropertyAccessor
                   .getPropertyType(destinationPropertyName);
             final Class<?> genericDestinationCollectionType = pdp.getGenericDestinationCollectionType();
-            final Collection<?> sourceCollection = (Collection<?>) sourcePropertyAccessor
+
+            Collection<?> sourceCollection = (Collection<?>) sourcePropertyAccessor
                   .getPropertyValue(sourcePropertyName);
 
             Collection destinationCollection = (Collection) destinationPropertyAccessor.getPropertyValue(pdp
                   .getDestination().getName());
-            
+
             if (sourceCollection != null) {
 
                final String[] nestedExclusions = getNestedPropertyExclusions(destinationPropertyName, explicitIgnoreSet);
@@ -57,7 +61,8 @@ public class CollectionPropertyMapper extends AbstractPropertyMapper {
                   int i = 0;
                   for (final Iterator it = sourceCollection.iterator(); it.hasNext(); i++) {
                      final Object sourceObject = it.next();
-                     final Object destinationObject = CollectionUtils.retrieveIndexedValueFromCollection(destinationCollection, i);
+                     final Object destinationObject = CollectionUtils.retrieveIndexedValueFromCollection(
+                           destinationCollection, i);
                      objectAssembler.assemble(sourceObject, destinationObject, conversionCache, nestedExclusions);
                   }
                }

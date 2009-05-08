@@ -1,6 +1,8 @@
 package com.googlecode.simpleobjectassembler.converter;
 
 import com.googlecode.simpleobjectassembler.ObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
 
 /**
  * A converter for converting a source object to a destination type. Should be
@@ -65,6 +67,8 @@ public interface ObjectConverter<SourceObjectClass, DestinationObjectClass> {
     * @return
     */
    Class<DestinationObjectClass> getDestinationObjectClass();
+   
+   void setObjectAssembler(CachingObjectAssembler objectAssembler);
 
 
 }

@@ -1,7 +1,8 @@
-package com.googlecode.simpleobjectassembler.converter;
+package com.googlecode.simpleobjectassembler.registry;
 
 import com.googlecode.simpleobjectassembler.ConverterRegistry;
 import com.googlecode.simpleobjectassembler.ObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.mapping.ConverterMappingKey;
 
 /**
  * A key used to store a converter in the {@link ConverterRegistry} of an
@@ -14,7 +15,7 @@ public class TypeBasedTransformerMappingKey implements ConverterMappingKey {
 
    private final Class<?> destinationClass;
 
-   TypeBasedTransformerMappingKey(final Class<?> sourceClass, final Class<?> destinationClass) {
+   public TypeBasedTransformerMappingKey(final Class<?> sourceClass, final Class<?> destinationClass) {
       super();
       this.sourceClass = sourceClass;
       this.destinationClass = destinationClass;

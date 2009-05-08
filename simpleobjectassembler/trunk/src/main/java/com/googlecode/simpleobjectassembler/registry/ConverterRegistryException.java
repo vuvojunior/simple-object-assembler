@@ -1,4 +1,6 @@
-package com.googlecode.simpleobjectassembler.converter;
+package com.googlecode.simpleobjectassembler.registry;
+
+import com.googlecode.simpleobjectassembler.converter.mapping.ConverterMappingKey;
 
 public class ConverterRegistryException extends RuntimeException {
 

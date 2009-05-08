@@ -3,7 +3,7 @@ package com.googlecode.simpleobjectassembler.converter;
 import java.util.Set;
 
 import com.googlecode.simpleobjectassembler.converter.AbstractObjectConverter;
-import com.googlecode.simpleobjectassembler.converter.ConverterFieldMapping;
+import com.googlecode.simpleobjectassembler.converter.mapping.ConverterFieldMapping;
 
 public class SourceToDestinationWithDifferentFieldNameObjectConverter extends AbstractObjectConverter<SourceObject, DestinationObject> {
 

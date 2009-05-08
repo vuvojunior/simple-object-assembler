@@ -1,5 +1,7 @@
 package com.googlecode.simpleobjectassembler.converter;
 
+import com.googlecode.simpleobjectassembler.converter.mapping.ConverterMappingKey;
+
 public class ConversionException extends RuntimeException {
 
    private static final long serialVersionUID = -5475721016563077825L;
