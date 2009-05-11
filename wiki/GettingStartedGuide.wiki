@@ -51,11 +51,12 @@ DestinationObject destinationObject objectAssembler.assemble(sourceObject, Desti
 This will look up it's registry for a converter with the same source and destination combination. A converter in it's simplest form might look something like this:
 
 {{{
-public class SourceToDestinationTestObjectConverter extends    AbstractObjectConverter<SourceObject, DestinationObject> {
+public class SourceToDestinationTestObjectConverter extends    AbstractObjectConverter<StaffMember, StaffMemberDto> {
 
 }
 }}}
  
+The assembler uses the Parameterized type values of 'StaffMember' and 'StaffMemberDto' in order to register the converter against those source and destination object types. 
 
 You'll notice that this converter extends the {{{AbstractObjectConverter}}} which has or defers most of the conversion logic to supporting classes. The end result of calling this converter via the assembler as shown above is that all properties of the same name will be converted from the source to destination object. If two properties with the same name but different types are encountered, the registry will be consulted and the assembler will recursively call itself until all properties are converted.
 
