@@ -10,7 +10,7 @@ Next add the following dependency to your project - obviously double check that 
 <dependency>
    <groupId>com.googlecode</groupId>
    <artifactId>simpleobjectassembler</artifactId>
-   <version>0.3.2-SNAPSHOT</version>
+   <version>0.4.1-SNAPSHOT</version>
 </dependency> 
 }}}
 
@@ -18,6 +18,15 @@ Once your project is correctly configured with the Simple Object Assembler on yo
 
 {{{
 <bean id="objectAssembler" class="com.googlecode.simpleobjectassembler.SimpleObjectAssembler" />
+}}}
+
+If you would like to have the object assembler automatically attempt to convert objects that don't have an explicit converter registered, you can set the assembler property 'automapWhenNoConverterFound' to true;
+
+
+{{{
+<bean id="objectAssembler" class="com.googlecode.simpleobjectassembler.SimpleObjectAssembler">
+  <property name="automapWhenNoConverterFound" value="true"/>
+</bean>
 }}}
 
 
@@ -43,14 +52,6 @@ This will look up it's registry for a converter with the same source and destina
 
 {{{
 public class SourceToDestinationTestObjectConverter extends    AbstractObjectConverter<SourceObject, DestinationObject> {
-
-  public Class<DestinationObject> getDestinationObjectClass() {
-     return DestinationObject.class;
-  }
-
-  public Class<SourceObject> getSourceObjectClass() {
-     return SourceObject.class;
-  }
 
 }
 }}}
