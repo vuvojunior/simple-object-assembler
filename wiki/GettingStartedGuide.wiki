@@ -30,7 +30,7 @@ If you would like to have the object assembler automatically attempt to convert 
 }}}
 
 
-Now you're ready to use the object assembler with any Converters you write.  For now refer back to the blog article for details.
+Now you're ready to use the object assembler with any Converters you write. 
 
 ==3rd Party Dependencies==
 I've tried to make most of the dependencies optional or specified them with a scope of 'provided' in the maven dependency configuration.  This way you don't have to worry about conflicting versions of Spring for example.  There is a dependency on Spring 2.x and you will get less configuration if you have annotation based configuration enabled.
