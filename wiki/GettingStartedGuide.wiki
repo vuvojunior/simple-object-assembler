@@ -10,7 +10,7 @@ Next add the following dependency to your project - obviously double check that 
 <dependency>
    <groupId>com.googlecode</groupId>
    <artifactId>simpleobjectassembler</artifactId>
-   <version>0.4.1-SNAPSHOT</version>
+   <version>0.4.2-SNAPSHOT</version>
 </dependency> 
 }}}
 
@@ -66,7 +66,7 @@ You'll notice that this converter extends the {{{AbstractObjectConverter}}} whic
 If you want to exclude any part of the object graph from automatically being converted, you can do so in three ways.
 
   # By overriding the {{{disableAutoMapping()}}} method on your converter implementation and returning {{{true}}}
-  # By overriding the {{{alwaysIgnoreProperties()}}} method on your converter and returning a Set of field names to exclude from conversion
+  # By overriding the {{{alwaysIgnoreProperties()}}} method on your converter and returning a IgnoreSet of field names to exclude from conversion
   # By passing an array or var-args of property names to exclude into the assembler
 
 
@@ -132,14 +132,6 @@ public class UserDtoToUserConverter extends AbstractObjectConverter<UserDto, Use
     } else {
       return userDao.findById(userDto.getId());
     }
-  }
-
-  public Class<UserDto> getSourceObjectClass() {
-    return UserDto.class;
-  }
-
-  public Class<User> getDestinationObjectClass() {
-    return User.class;
   }
 
 }
