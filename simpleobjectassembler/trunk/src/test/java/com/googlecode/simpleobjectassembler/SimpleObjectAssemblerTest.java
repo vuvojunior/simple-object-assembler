@@ -8,7 +8,9 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import junit.framework.Assert;
 
@@ -157,6 +159,33 @@ public class SimpleObjectAssemblerTest {
 
       Assert.assertEquals(OTHER_STRING, destinationObject.getNestedObjectList().get(0).getOtherString());
       Assert.assertEquals(OTHER_STRING, destinationObject.getNestedObjectList().get(1).getOtherString());
+
+   }
+   
+  
+   public void shouldMapValuesInNestedOrderedCollectionOfDifferentCollectionTypes() {
+
+      // reset with different assembler and converters - mainly the
+      // destinationObject providing one
+      objectAssembler = new SimpleObjectAssembler();
+
+      final DestinationObjectProvidingObjectConverter testObjectConverter = new DestinationObjectProvidingObjectConverter();
+      testObjectConverter.setObjectAssembler(objectAssembler);
+      testObjectConverter.postConstruct();
+
+      nestedObjectConverter = new NestedObjectConverter();
+      nestedObjectConverter.setObjectAssembler(objectAssembler);
+      nestedObjectConverter.postConstruct();
+
+      final SourceObject sourceObject = createFullyPopulatedSourceObject();
+      final DestinationObject destinationObject = objectAssembler.assemble(sourceObject, DestinationObject.class,
+            "nestedObjectCollection.string");
+
+      Assert.assertEquals("a", destinationObject.getNestedObjectCollection().get(0).getString());
+      Assert.assertEquals("a", destinationObject.getNestedObjectCollection().get(1).getString());
+
+      Assert.assertEquals(OTHER_STRING, destinationObject.getNestedObjectCollection().get(0).getOtherString());
+      Assert.assertEquals(OTHER_STRING, destinationObject.getNestedObjectCollection().get(1).getOtherString());
 
    }
 
@@ -392,10 +421,17 @@ public class SimpleObjectAssemblerTest {
       sourceObject.setNestedObject(createFullyPopulatedNestedSourceObject("string1"));
       sourceObject
             .setNestedObjectDifferentNameSource(createFullyPopulatedNestedSourceObject("nestedObjectDifferentName"));
+      
       final List<NestedSourceObject> list = new ArrayList<NestedSourceObject>();
       list.add(createFullyPopulatedNestedSourceObject("string2"));
       list.add(createFullyPopulatedNestedSourceObject("string3"));
       sourceObject.setNestedObjectList(list);
+      
+      final Set<NestedSourceObject> set = new LinkedHashSet<NestedSourceObject>();
+      set.add(createFullyPopulatedNestedSourceObject("string4"));
+      set.add(createFullyPopulatedNestedSourceObject("string5"));
+      
+      sourceObject.setNestedObjectCollection(set);
       sourceObject.setNestedObjectListDifferentNameSource(list);
       sourceObject.setNestedObjectSet(Collections.singleton(createFullyPopulatedNestedSourceObject("string4")));
       return sourceObject;

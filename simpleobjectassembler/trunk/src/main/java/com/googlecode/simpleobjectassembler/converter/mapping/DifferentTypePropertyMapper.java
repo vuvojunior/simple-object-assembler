@@ -1,11 +1,7 @@
 package com.googlecode.simpleobjectassembler.converter.mapping;
 
 import java.util.List;
-import java.util.Set;
 
-import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.DirectFieldAccessor;
-import org.springframework.beans.NotReadablePropertyException;
 import org.springframework.beans.PropertyAccessor;
 
 import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
@@ -13,7 +9,7 @@ import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
 
 public class DifferentTypePropertyMapper extends AbstractPropertyMapper {
 
-   public void mapProperties(List<PropertyDescriptorPair> conversionCandidates, Set<String> explicitIgnoreSet,
+   public void mapProperties(List<PropertyDescriptorPair> conversionCandidates, IgnoreSet explicitIgnoreSet,
          PropertyAccessor sourcePropertyAccessor, PropertyAccessor destinationPropertyAccessor,
          ConversionCache conversionCache, CachingObjectAssembler objectAssembler) {
 

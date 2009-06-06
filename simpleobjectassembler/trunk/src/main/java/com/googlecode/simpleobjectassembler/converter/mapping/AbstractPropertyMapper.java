@@ -2,7 +2,6 @@ package com.googlecode.simpleobjectassembler.converter.mapping;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.util.StringUtils;
@@ -18,7 +17,7 @@ public abstract class AbstractPropertyMapper implements PropertyMapper {
     * @see com.googlecode.simpleobjectassembler.converter.PropertyMapper#mapProperties(java.util.List, java.util.Set, org.springframework.beans.PropertyAccessor, org.springframework.beans.PropertyAccessor, com.googlecode.simpleobjectassembler.converter.ConversionCache)
     */
    public abstract void mapProperties(List<PropertyDescriptorPair> conversionCandidates,
-         Set<String> explicitIgnoreSet, 
+         IgnoreSet explicitIgnoreSet, 
          PropertyAccessor sourcePropertyAccessor,
          PropertyAccessor destinationPropertyAccessor, 
          ConversionCache conversionCache,
@@ -34,9 +33,9 @@ public abstract class AbstractPropertyMapper implements PropertyMapper {
     * @param explicitIgnoreSet
     * @return
     */
-   protected String[] getNestedPropertyExclusions(String propertyBase, Set<String> explicitIgnoreSet) {
+   protected String[] getNestedPropertyExclusions(String propertyBase, IgnoreSet explicitIgnoreSet) {
       final List<String> nestedProperties = new ArrayList<String>();
-      for (String property : explicitIgnoreSet) {
+      for (String property : explicitIgnoreSet.getSet()) {
 
          final String nestedPropertyPrefix = propertyBase + ".";
 

@@ -15,6 +15,8 @@ public class SourceObject {
 
    private List<NestedSourceObject> nestedObjectList;
    
+   private Set<NestedSourceObject> nestedObjectCollection;
+   
    private List<NestedSourceObject> nestedObjectListDifferentNameSource;
 
    private Set<NestedSourceObject> nestedObjectSet;
@@ -79,6 +81,16 @@ public class SourceObject {
    
    public void setNestedObjectListDifferentNameSource(List<NestedSourceObject> nestedObjectListDifferentNameSource) {
       this.nestedObjectListDifferentNameSource = nestedObjectListDifferentNameSource;
+   }
+
+   
+   public Set<NestedSourceObject> getNestedObjectCollection() {
+      return nestedObjectCollection;
+   }
+
+   
+   public void setNestedObjectCollection(Set<NestedSourceObject> nestedObjectCollection) {
+      this.nestedObjectCollection = nestedObjectCollection;
    }
 
    @Override

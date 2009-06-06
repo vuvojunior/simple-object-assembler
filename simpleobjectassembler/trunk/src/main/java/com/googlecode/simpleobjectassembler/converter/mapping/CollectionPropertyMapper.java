@@ -7,9 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.DirectFieldAccessor;
-import org.springframework.beans.NotReadablePropertyException;
 import org.springframework.beans.PropertyAccessor;
 
 import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
@@ -31,7 +28,7 @@ public class CollectionPropertyMapper extends AbstractPropertyMapper {
     * @param sourcePropertyAccessor
     * @param destinationPropertyAccessor
     */
-   public void mapProperties(List<PropertyDescriptorPair> conversionCandidates, final Set<String> explicitIgnoreSet,
+   public void mapProperties(List<PropertyDescriptorPair> conversionCandidates, final IgnoreSet explicitIgnoreSet,
          final PropertyAccessor sourcePropertyAccessor, final PropertyAccessor destinationPropertyAccessor,
          ConversionCache conversionCache, CachingObjectAssembler objectAssembler) {
 

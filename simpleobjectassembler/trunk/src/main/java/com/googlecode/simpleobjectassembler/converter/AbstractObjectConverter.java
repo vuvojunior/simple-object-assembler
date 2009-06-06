@@ -30,6 +30,7 @@ import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
 import com.googlecode.simpleobjectassembler.converter.mapping.CollectionPropertyMapper;
 import com.googlecode.simpleobjectassembler.converter.mapping.ConverterFieldMapping;
 import com.googlecode.simpleobjectassembler.converter.mapping.DifferentTypePropertyMapper;
+import com.googlecode.simpleobjectassembler.converter.mapping.IgnoreSet;
 import com.googlecode.simpleobjectassembler.converter.mapping.PropertyDescriptorPair;
 import com.googlecode.simpleobjectassembler.converter.mapping.PropertyMapper;
 import com.googlecode.simpleobjectassembler.converter.mapping.SameTypePropertyMapper;
@@ -113,14 +114,14 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
       }
 
       initialiseFieldMappingIfRequired();
-      final Set<String> explicitIgnoreSet = alwaysIgnoreProperties();
-      Collections.addAll(explicitIgnoreSet, DEFAULT_PROPERTIES_TO_IGNORE);
-      Collections.addAll(explicitIgnoreSet, ignoreProperties);
+      final IgnoreSet explicitIgnoreSet = alwaysIgnoreProperties();
+      Collections.addAll(explicitIgnoreSet.getSet(), DEFAULT_PROPERTIES_TO_IGNORE);
+      Collections.addAll(explicitIgnoreSet.getSet(), ignoreProperties);
 
       validatePropertiesToIgnore(destinationObject, ignoreProperties);
 
       final Set<String> fullIgnoreSet = new HashSet<String>();
-      fullIgnoreSet.addAll(explicitIgnoreSet);
+      fullIgnoreSet.addAll(explicitIgnoreSet.getSet());
 
       if (!disableAutoMapping() && !fullIgnoreSet.contains(PROPERTY_EXCLUSION_WILDCARD_CHARACTER)) {
 
@@ -138,11 +139,10 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
       if (!fullIgnoreSet.contains(PROPERTY_EXCLUSION_WILDCARD_CHARACTER)) {
          // call user defined conversions.
-         return convert(sourceObject, destinationObject);
+         convert(sourceObject, destinationObject);
       }
-      else {
-         return destinationObject;
-      }
+         
+      return destinationObject;
 
    }
 
@@ -155,8 +155,8 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
     * @param destinationObject
     * @return
     */
-   public DestinationObjectClass convert(SourceObjectClass sourceObject, DestinationObjectClass destinationObject) {
-      return destinationObject;
+   public void convert(SourceObjectClass sourceObject, DestinationObjectClass destinationObject) {
+      //Override to implement explicit custom coversion logic
    }
 
    /**
@@ -211,8 +211,8 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
     * 
     * @return
     */
-   protected Set<String> alwaysIgnoreProperties() {
-      return new HashSet<String>();
+   protected IgnoreSet alwaysIgnoreProperties() {
+      return new IgnoreSet();
    }
 
    /**
@@ -289,7 +289,21 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
                final String destinationName = destinationPds[j].getName();
                final Class<?> destinationType = destinationPds[j].getPropertyType();
 
-               if (shouldMapFieldNames(sourceName, destinationName) && !sourceType.equals(destinationType)
+               if (shouldMapFieldNames(sourceName, destinationName) 
+                     && isSupportedCollection(sourceType)
+                     && isSupportedCollection(destinationType)
+                     && !CollectionUtils.hasSameGenericCollectionType(sourcePds[i], destinationPds[j])
+                     && writableDestinationFields.containsKey(destinationName)) {
+
+                  final Class<?> genericDestinationCollectionType = GenericCollectionTypeResolver
+                        .getCollectionReturnType(destinationPds[j].getReadMethod());
+
+                  collectionConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j],
+                        genericDestinationCollectionType));
+
+               }
+               else if (shouldMapFieldNames(sourceName, destinationName) 
+                     && !sourceType.equals(destinationType)
                      && writableDestinationFields.containsKey(destinationName)) {
 
                   if (objectAssembler.converterExists(sourceType, destinationType)) {
@@ -302,17 +316,6 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
                   else {
                      throw new ConversionException(sourceType, destinationType);
                   }
-               }
-               else if (shouldMapFieldNames(sourceName, destinationName) && isSupportedCollection(sourceType)
-                     && !CollectionUtils.hasSameGenericCollectionType(sourcePds[i], destinationPds[j])
-                     && writableDestinationFields.containsKey(destinationName)) {
-
-                  final Class<?> genericDestinationCollectionType = GenericCollectionTypeResolver
-                        .getCollectionReturnType(destinationPds[j].getReadMethod());
-
-                  collectionConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j],
-                        genericDestinationCollectionType));
-
                }
                else if (shouldMapFieldNames(sourceName, destinationName)
                      && writableDestinationFields.containsKey(destinationName)) {

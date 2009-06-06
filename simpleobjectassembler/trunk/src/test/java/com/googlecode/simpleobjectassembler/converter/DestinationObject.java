@@ -6,9 +6,9 @@ import java.util.Set;
 public class DestinationObject {
 
    private String string;
-   
+
    private String differentNameDestination;
-   
+
    private NestedDestinationObject nestedObjectDifferentNameDestination;
 
    private NestedDestinationObject nestedObject;
@@ -16,7 +16,9 @@ public class DestinationObject {
    private List<NestedDestinationObject> nestedObjectList;
 
    private Set<NestedDestinationObject> nestedObjectSet;
-   
+
+   private List<NestedDestinationObject> nestedObjectCollection;
+
    private List<NestedDestinationObject> nestedObjectListDifferentNameDestination;
 
    public String getString() {
@@ -51,34 +53,37 @@ public class DestinationObject {
       this.nestedObjectSet = nestedObjectSet;
    }
 
-   
    public String getDifferentNameDestination() {
       return differentNameDestination;
    }
 
-   
    public void setDifferentNameDestination(String differentNameDestination) {
       this.differentNameDestination = differentNameDestination;
    }
 
-   
    public NestedDestinationObject getNestedObjectDifferentNameDestination() {
       return nestedObjectDifferentNameDestination;
    }
 
-   
    public void setNestedObjectDifferentNameDestination(NestedDestinationObject nestedObjectDifferentNameDestination) {
       this.nestedObjectDifferentNameDestination = nestedObjectDifferentNameDestination;
    }
 
-   
    public List<NestedDestinationObject> getNestedObjectListDifferentNameDestination() {
       return nestedObjectListDifferentNameDestination;
    }
 
-   
-   public void setNestedObjectListDifferentNameDestination(List<NestedDestinationObject> nestedObjectListDifferentNameDestination) {
+   public void setNestedObjectListDifferentNameDestination(
+         List<NestedDestinationObject> nestedObjectListDifferentNameDestination) {
       this.nestedObjectListDifferentNameDestination = nestedObjectListDifferentNameDestination;
+   }
+
+   public List<NestedDestinationObject> getNestedObjectCollection() {
+      return nestedObjectCollection;
+   }
+
+   public void setNestedObjectCollection(List<NestedDestinationObject> nestedObjectCollection) {
+      this.nestedObjectCollection = nestedObjectCollection;
    }
 
    @Override
@@ -91,15 +96,20 @@ public class DestinationObject {
 
    @Override
    public boolean equals(Object obj) {
-      if (this == obj) return true;
-      if (obj == null) return false;
-      if (getClass() != obj.getClass()) return false;
+      if (this == obj)
+         return true;
+      if (obj == null)
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
       DestinationObject other = (DestinationObject) obj;
       if (string == null) {
-         if (other.string != null) return false;
-      } else if (!string.equals(other.string)) return false;
+         if (other.string != null)
+            return false;
+      }
+      else if (!string.equals(other.string))
+         return false;
       return true;
    }
-
 
 }
