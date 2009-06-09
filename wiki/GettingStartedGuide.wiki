@@ -33,7 +33,15 @@ If you would like to have the object assembler automatically attempt to convert 
 Now you're ready to use the object assembler with any Converters you write. 
 
 ==3rd Party Dependencies==
-I've tried to make most of the dependencies optional or specified them with a scope of 'provided' in the maven dependency configuration.  This way you don't have to worry about conflicting versions of Spring for example.  There is a dependency on Spring 2.x and you will get less configuration if you have annotation based configuration enabled.
+I've tried to make most of the dependencies optional or specified them with a scope of 'provided' in the maven dependency configuration.  This way you don't have to worry about conflicting versions of Spring for example.  There is a dependency on Spring 2.x and you will get less configuration if you have annotation based configuration enabled.  It is important to note that if you're downloading and installing the compiled jar in your local m2 repository rather than building from source using maven, you will not get any of the transitive dependencies. If you intend to use annotation based configuration (recommended), then ensure you have jsr250-api in your pom:
+
+{{{
+<dependency>
+   <groupId>javax.annotation</groupId>
+   <artifactId>jsr250-api</artifactId>
+   <version>1.0</version>
+</dependency>
+}}}
 
 For anyone not using annotation based configuration, each converter will need an {{{init-method}}} to be defined on the bean definition that calls {{{postConstruct()}}}, or will need to implement {{{InitializingBean}}} and explicitly call {{{postConstruct()}}}.  Converters also need an instance of the {{{SimpleObjectAssembler}}} to be injected via the setter.  Annotation based projects can skip all this.
 
