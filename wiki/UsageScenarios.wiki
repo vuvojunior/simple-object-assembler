@@ -1,6 +1,4 @@
-#summary Solutions to some common mapping scenarios
+#summary Solutions to some common mapping / conversion scenarios
 
 Please read the getting started guide first. This page assumes that you have basic familiarity with the assembler life-cycle and usage.
-
-
 
