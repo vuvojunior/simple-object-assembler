@@ -21,11 +21,13 @@ import org.junit.Test;
 import com.googlecode.simpleobjectassembler.converter.ConversionException;
 import com.googlecode.simpleobjectassembler.converter.DestinationObject;
 import com.googlecode.simpleobjectassembler.converter.DestinationObjectProvidingObjectConverter;
+import com.googlecode.simpleobjectassembler.converter.DestinationObjectWithNoSetterForProperty;
 import com.googlecode.simpleobjectassembler.converter.NestedObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.NestedSourceObject;
 import com.googlecode.simpleobjectassembler.converter.ObjectContainingGetterWithNoProperty;
 import com.googlecode.simpleobjectassembler.converter.ObjectWithSetterForAugmentedGetter;
 import com.googlecode.simpleobjectassembler.converter.SourceObject;
+import com.googlecode.simpleobjectassembler.converter.SourceObjectWithNoSetterForProperty;
 import com.googlecode.simpleobjectassembler.converter.SourceToDestinationTestObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.SourceToDestinationWithDifferentFieldNameObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.StubEntity;
@@ -409,6 +411,21 @@ public class SimpleObjectAssemblerTest {
       assertEquals(source.getAugmentedString(), destination.getAugmentedString());
       assertEquals(Integer.valueOf(source.getNumber()), destination.getNumber());
       assertEquals("string", destination.getList().get(0));
+      
+   }
+   
+   @Test
+   public void shouldMapToDestinationPropertyWithoutSetter() {
+
+      SourceObjectWithNoSetterForProperty source = new SourceObjectWithNoSetterForProperty("string");
+
+      objectAssembler = new SimpleObjectAssembler();
+      objectAssembler.setAutomapWhenNoConverterFound(true);
+      
+      DestinationObjectWithNoSetterForProperty destination = objectAssembler.assemble(source,
+            DestinationObjectWithNoSetterForProperty.class);
+      
+      assertEquals("string", destination.getPropertyWithoutSetter());
       
    }
    
