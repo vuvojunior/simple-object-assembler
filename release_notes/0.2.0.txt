@@ -1,0 +1,5 @@
+
+Changes
+---------
+- Using the "*" wildcard in property paths to ignore now also prevents the explicit user-defined 'convert' method from being called.
+- Initial internal code cleanup and refactoring
