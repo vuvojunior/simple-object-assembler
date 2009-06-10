@@ -1,0 +1,77 @@
+package com.googlecode.simpleobjectassembler.utils;
+
+
+import java.beans.PropertyDescriptor;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import org.springframework.core.GenericCollectionTypeResolver;
+
+public final class CollectionUtils {
+
+   private CollectionUtils() {
+      // Don't want instances of this class
+  }
+   
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> createFrom(final List sourceList) { 
+        final List<T> destinationList = new ArrayList<T>(sourceList.size());
+        for (final Iterator iter = sourceList.iterator(); iter.hasNext();) {
+            destinationList.add((T) iter.next());
+        }
+        return destinationList;
+    }
+    
+    
+    public static boolean hasSameGenericCollectionType(PropertyDescriptor sourcePropertyDescriptor,
+          PropertyDescriptor destinationPropertyDescriptor) {
+
+       final Class<?> genericSourceType = GenericCollectionTypeResolver.getCollectionReturnType(sourcePropertyDescriptor
+             .getReadMethod());
+       final Class<?> genericDestinationType = GenericCollectionTypeResolver
+             .getCollectionReturnType(destinationPropertyDescriptor.getReadMethod());
+       if (genericSourceType == null && genericDestinationType == null) {
+          return true;
+       }
+       else if (genericSourceType == null || genericDestinationType == null) {
+          return false;
+       }
+       else {
+          return genericSourceType.equals(genericDestinationType);
+       }
+    }
+    
+    /**
+     * Will retrieve an object by it's index regardless of collection type.
+     * Beware that non indexed collections such as a hashset will not retrieve
+     * values reliably by index .
+     * 
+     * TODO: May want to throw an exception if attempting to retrieve a value by
+     * index from an unordered collection.
+     * 
+     * @param collection
+     * @param index
+     * @return
+     */
+    public static <T> T retrieveIndexedValueFromCollection(Collection<T> collection, int index) {
+
+       if (collection instanceof List) {
+          return ((List<T>) collection).get(index);
+       }
+       else {
+          final Iterator<T> it = collection.iterator();
+          for (int j = 0; it.hasNext(); j++) {
+             if (j == index) {
+                return it.next();
+             }
+          }
+          return null;
+       }
+    }
+    
+    public static boolean isOrderedCollection(Collection<?> collection) {
+       return List.class.isAssignableFrom(collection.getClass());
+    }
+}
