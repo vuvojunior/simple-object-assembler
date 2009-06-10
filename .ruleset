@@ -1,0 +1,188 @@
+<ruleset name="MyLocalPractice Ruleset" xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd" xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
+   <description>PMD Ruleset for MyLocalPractice Project</description>
+   <!-- ********************************* -->
+   <!-- Design Rules - design.xml -->
+   <!-- ********************************* -->
+
+   <rule ref="rulesets/design.xml/UncommentedEmptyConstructor">
+      <priority>3</priority>
+   </rule>
+   <rule ref="rulesets/design.xml/ConstructorCallsOverridableMethod"/>
+
+   <rule ref="rulesets/design.xml/AbstractClassWithoutAbstractMethod">
+      <priority>3</priority>
+   </rule>
+
+   <!--rule ref="rulesets/design.xml/EmptyMethodInAbstractClassShouldBeAbstract">
+   <priority>2</priority>
+   </rule-->
+   <rule ref="rulesets/design.xml/SimplifyBooleanExpressions"/>
+   <rule ref="rulesets/design.xml/UseSingleton"/>
+   <rule ref="rulesets/design.xml/ImmutableField"/>
+   <rule ref="rulesets/design.xml/UseLocaleWithCaseConversions"/>
+   <rule ref="rulesets/design.xml/UseCollectionIsEmpty"/>
+   <rule ref="rulesets/design.xml/UnnecessaryLocalBeforeReturn"/>
+   <rule ref="rulesets/design.xml/SingularField"/>
+   <rule ref="rulesets/design.xml/UncommentedEmptyMethod"/>
+   <rule ref="rulesets/design.xml/SimplifyBooleanReturns"/>
+   <rule ref="rulesets/design.xml/SwitchStmtsShouldHaveDefault"/>
+   <rule ref="rulesets/design.xml/FinalFieldCouldBeStatic"/>
+   <rule ref="rulesets/design.xml/PreserveStackTrace"/>
+   <rule ref="rulesets/design.xml/AvoidDeeplyNestedIfStmts"/>
+   <rule ref="rulesets/design.xml/NonStaticInitializer"/>
+   <rule ref="rulesets/design.xml/SimpleDateFormatNeedsLocale"/>
+   <!-- ********************************* -->
+   <!-- Basic Rules - basic.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/basic.xml/EmptyCatchBlock"/>
+   <rule ref="rulesets/basic.xml/CollapsibleIfStatements"/>
+   <rule ref="rulesets/basic.xml/ClassCastExceptionWithToArray"/>
+   <!-- ********************************* -->
+
+   <!--
+       Jakarta Commons Logging Rules- logging-jakarta-commons.xml 
+-->
+   <!-- ********************************* -->
+   <rule ref="rulesets/logging-jakarta-commons.xml/ProperLogger"/>
+   <rule ref="rulesets/logging-jakarta-commons.xml/UseCorrectExceptionLogging"/>
+   <!-- ********************************* -->
+   <!-- Optimizations Rules - optimizations.xml -->
+   <!-- ********************************* -->
+   <!--rule ref="rulesets/optimizations.xml/MethodArgumentCouldBeFinal"/-->
+   <rule ref="rulesets/optimizations.xml/UseStringBufferForStringAppends"/>
+   <!--rule ref="rulesets/optimizations.xml/AvoidInstantiatingObjectsInLoops"/-->
+   <rule ref="rulesets/optimizations.xml/LocalVariableCouldBeFinal"/>
+   <rule ref="rulesets/optimizations.xml/AddEmptyString"/>
+   <rule ref="rulesets/optimizations.xml/SimplifyStartsWith"/>
+   <!-- ********************************* -->
+   <!-- Controversial Rules - controversial.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/controversial.xml/DataflowAnomalyAnalysis"/>
+   <!-- Don't quite understand this check -->
+   <rule ref="rulesets/controversial.xml/NullAssignment"/>
+   <rule ref="rulesets/controversial.xml/DefaultPackage"/>
+   <rule ref="rulesets/controversial.xml/UnusedModifier"/>
+   <rule ref="rulesets/controversial.xml/AvoidUsingShortType"/>
+   <rule ref="rulesets/controversial.xml/UnnecessaryConstructor"/>
+   <!-- ********************************* -->
+   <!-- String and StringBuffer Rules - strings.xml -->
+   <!-- ********************************* -->
+
+   <rule ref="rulesets/strings.xml/AvoidDuplicateLiterals">
+
+      <properties>
+         <property name="skipAnnotations" value="true"/>
+      </properties>
+   </rule>
+   <rule ref="rulesets/strings.xml/InsufficientStringBufferDeclaration"/>
+   <rule ref="rulesets/strings.xml/AppendCharacterWithChar"/>
+   <rule ref="rulesets/strings.xml/InefficientEmptyStringCheck"/>
+   <rule ref="rulesets/strings.xml/UseIndexOfChar"/>
+   <!-- ********************************* -->
+   <!-- Strict Exception Rules - strictexception.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/strictexception.xml/SignatureDeclareThrowsException"/>
+   <rule ref="rulesets/strictexception.xml/AvoidThrowingRawExceptionTypes"/>
+
+   <rule ref="rulesets/strictexception.xml/AvoidRethrowingException">
+      <priority>3</priority>
+   </rule>
+   <!-- ********************************* -->
+   <!-- Naming Rules - naming.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/naming.xml/AvoidFieldNameMatchingTypeName"/>
+   <rule ref="rulesets/naming.xml/ShortMethodName"/>
+   <rule ref="rulesets/naming.xml/AbstractNaming"/>
+   <rule ref="rulesets/naming.xml/SuspiciousConstantFieldName"/>
+
+   <rule ref="rulesets/naming.xml/LongVariable">
+
+      <properties>
+         <property name="minimum" value="40"/>
+      </properties>
+   </rule>
+   <!-- ********************************* -->
+   <!-- Type Resolution Rules - typeresolution.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/typeresolution.xml/UnusedImports"/>
+   <!-- ********************************* -->
+   <!-- Unused Code Rules - unusedcode.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/unusedcode.xml/UnusedPrivateField"/>
+   <rule ref="rulesets/unusedcode.xml/UnusedLocalVariable"/>
+   <rule ref="rulesets/unusedcode.xml/UnusedFormalParameter"/>
+   <rule ref="rulesets/unusedcode.xml/UnusedPrivateMethod"/>
+   <!-- ********************************* -->
+   <!-- JavaBean Rules - javabeans.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/javabeans.xml/MissingSerialVersionUID"/>
+
+   <!--
+       The following rule should probably be disabled when using PMD earlier than 2.3.
+              The following research was performed by David Stewart:
+
+              The rule is BeanMembersShouldSerialize which complains when it finds a non-transient, non-static member that
+              does not have accessors.  The problem was raised that when using IOC there are often no accessors leading to
+              many incorrect error notifications.
+
+              I finally managed to get round to looking at it and it appears that the rule is more stringent in that any
+              member variable must be marked transient if both a setter and getter are not supplied.
+
+              Some work was done on this recently (June), unfortunately it was after the last PMD release (4.2.2) and
+              therefore has not been released yet. (The Eclipse plugin is still on the previous release - 4.2.1).
+
+              The work done uses the @SuppressWarnings("serial") annotation. This annotation is used to suppress compiler
+              warnings about serialisation and specifically the absence of SerialVersionUID on a serialisable class. Since
+              PMD has not been released with this 'fix'
+              (http://sourceforge.net/tracker/index.php?func=detail&aid=1998185&group_id=56262&atid=479921)
+              I have not been able to verify that this picks up the IOC issues.
+
+              To this end I would suggest that the BeanMembersShouldSerialize should be reclassified to a warning or even
+              information and could be revisited on the next release of PMD.
+
+-->
+   <!--rule ref="rulesets/javabeans.xml/BeanMembersShouldSerialize"/-->
+   <!-- ********************************* -->
+   <!-- Braces Rules - braces.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/braces.xml/IfStmtsMustUseBraces"/>
+   <rule ref="rulesets/braces.xml/IfElseStmtsMustUseBraces"/>
+   <rule ref="rulesets/braces.xml/ForLoopsMustUseBraces"/>
+   <rule ref="rulesets/braces.xml/WhileLoopsMustUseBraces"/>
+   <!-- ********************************* -->
+   <!-- Import Rules - imports.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/imports.xml/ImportFromSamePackage"/>
+   <rule ref="rulesets/imports.xml/DuplicateImports"/>
+   <!-- ********************************* -->
+   <!-- Code Size Rules - codesize.xml -->
+   <!-- ********************************* -->
+
+   <rule ref="rulesets/codesize.xml/NPathComplexity">
+
+      <properties>
+         <property name="minimum" value="400"/>
+      </properties>
+   </rule>
+   <rule ref="rulesets/codesize.xml/ExcessiveMethodLength"/>
+   <rule ref="rulesets/codesize.xml/ExcessivePublicCount"/>
+   <rule ref="rulesets/codesize.xml/TooManyFields"/>
+   <rule ref="rulesets/codesize.xml/ExcessiveParameterList"/>
+   <!-- ********************************* -->
+   <!-- Migration Rules - migrating.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/migrating.xml/LongInstantiation"/>
+   <!-- ********************************* -->
+   <!-- Coupling Rules - coupling.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/coupling.xml/ExcessiveImports"/>
+   <!-- ********************************* -->
+   <!-- J2EE Rules - j2ee.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/j2ee.xml/UseProperClassLoader"/>
+   <!-- ********************************* -->
+   <!-- Security Code Guidelines - sunsecure.xml -->
+   <!-- ********************************* -->
+   <rule ref="rulesets/sunsecure.xml/ArrayIsStoredDirectly"/>
+   <rule ref="rulesets/sunsecure.xml/MethodReturnsInternalArray"/>
+</ruleset>
