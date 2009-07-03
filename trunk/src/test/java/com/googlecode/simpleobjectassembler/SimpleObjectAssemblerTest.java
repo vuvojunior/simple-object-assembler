@@ -3,11 +3,14 @@ package com.googlecode.simpleobjectassembler;
 import static org.easymock.EasyMock.expect;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,7 +20,9 @@ import junit.framework.Assert;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.stereotype.Component;
 
+import com.googlecode.simpleobjectassembler.converter.AbstractObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.ConversionException;
 import com.googlecode.simpleobjectassembler.converter.DestinationObject;
 import com.googlecode.simpleobjectassembler.converter.DestinationObjectProvidingObjectConverter;
@@ -429,7 +434,32 @@ public class SimpleObjectAssemblerTest {
       
    }
    
+   @Test
+   public void shouldConvertDateToCalendar() {
+      DateToCalendarConverter converter = new DateToCalendarConverter();
+      converter.setObjectAssembler(objectAssembler);
+      converter.postConstruct();
+      
+      assertNotNull(objectAssembler.assemble(new Date(), Calendar.class));
+   }
+   
 
+   
+   public class DateToCalendarConverter extends AbstractObjectConverter<Date, Calendar> {
+
+      @Override
+      public Calendar createDestinationObject(Date date) {
+         Calendar calendar = Calendar.getInstance();
+         calendar.setTime(date);
+         return calendar;
+      }
+
+      @Override
+      protected boolean disableAutoMapping() {
+         return true;
+      }
+   }
+   
 
    private SourceObject createFullyPopulatedSourceObject() {
       final SourceObject sourceObject = new SourceObject();
