@@ -266,7 +266,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
     */
    private void initialiseFieldMappingIfRequired() {
 
-      if (!initialised) {
+      if (!initialised && !disableAutoMapping()) {
 
          final PropertyDescriptor[] sourcePds = BeanUtils.getPropertyDescriptors(getSourceObjectClass());
          final PropertyDescriptor[] destinationPds = BeanUtils.getPropertyDescriptors(getDestinationObjectClass());
