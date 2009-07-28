@@ -232,16 +232,10 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
             localProperty = property.substring(0, property.indexOf("."));
          }
 
-         if (!PROPERTY_EXCLUSION_WILDCARD_CHARACTER.equals(localProperty)) {
-            try {
-               beanPropertyAccessor.getPropertyValue(localProperty);
-            }
-            catch (InvalidPropertyException ipe) {
+         if (!PROPERTY_EXCLUSION_WILDCARD_CHARACTER.equals(localProperty) 
+               && !beanPropertyAccessor.isWritableProperty(localProperty)) {
+            
                invalidProperties.add(destinationObject.getClass() + "#" + localProperty);
-            }
-            catch (PropertyAccessException pac) {
-               invalidProperties.add(destinationObject.getClass() + "#" + localProperty);
-            }
          }
       }
 
