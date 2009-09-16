@@ -21,6 +21,14 @@ public class SourceObject {
 
    private Set<NestedSourceObject> nestedObjectSet;
 
+   public SourceObject() {
+      
+   }
+
+   public SourceObject(String string) {
+      this.string = string;
+   }
+
    public String getString() {
       return string;
    }

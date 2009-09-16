@@ -24,7 +24,7 @@ public interface ConverterRegistry {
 	 * Register a converter in the registry. Typically converters are registered
 	 * on app startup by calling back on this method post construction.
 	 * 
-	 * @param objectConverter
+	 * @param converter
 	 */
 	void registerConverter(ObjectConverter<?, ?> converter);
 

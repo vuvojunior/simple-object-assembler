@@ -7,13 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import junit.framework.Assert;
 
@@ -81,6 +75,30 @@ public class SimpleObjectAssemblerTest {
       Assert.assertNull(destinationObject.getDifferentNameDestination());
       Assert.assertNull(destinationObject.getNestedObjectDifferentNameDestination());
       Assert.assertNull(destinationObject.getNestedObjectListDifferentNameDestination());
+
+   }
+
+   @Test
+   public void shouldAutomaticallyConvertCollectionElementsToAnAnonymousClassInstanceOfDestinationCollection() {
+      final List<SourceObject> sourceList = Arrays.asList(new SourceObject("stringz"), new SourceObject("stringx"));
+
+      final List<DestinationObject> destinationList = objectAssembler.assemble(sourceList, new ArrayList<DestinationObject>() {});
+
+      assertThat(destinationList.get(0).getString(), is("stringz"));
+      assertThat(destinationList.get(1).getString(), is("stringx"));
+
+   }
+
+   @Test
+   public void shouldThrowExceptionIfMappingBetweenCollectionsWithDestinationThatHasNoGenericTypeInformation() {
+      final List<SourceObject> sourceList = Arrays.asList(new SourceObject("string"));
+
+      try {
+         objectAssembler.assemble(sourceList, new ArrayList<DestinationObject>());
+         fail("should have thrown a conversion exception");
+      } catch(ConversionException e) {
+         //expected
+      }
 
    }
 
@@ -489,5 +507,6 @@ public class SimpleObjectAssemblerTest {
       nestedSourceObject.setOtherString(OTHER_STRING);
       return nestedSourceObject;
    }
+
 
 }
