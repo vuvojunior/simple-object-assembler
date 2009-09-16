@@ -91,7 +91,24 @@ public interface ObjectAssembler extends ConverterRegistry {
     * any of the fields as they are known not to change within the context.
     * </p>
     * <p>
-    * If mapping directly
+    * If mapping directly from collection to collection, the destination collection
+    * object needs to be able to determine the collection type at run time. Due to
+    * the nature of type erasure in generics, this is only possible if the generic type
+    * information is specified at the class level. In practice this means that the following
+    * will not work:
+    * </p>
+    * <p>
+    * objectAssmbler.assemble(sourceList, new ArrayList<Destination>());
+    * </p>
+    * <p>
+    *  ... but if you use an anonymous class that the defines the generic type information in the class
+    * definiation it will work. This is very minor syntax difference:
+    * </p>
+    * <p>
+    * objectAssmbler.assemble(sourceList, new ArrayList<Destination>(){});
+    * </p>
+    * <p>
+    * While this isn't entirely intuitive, it is concise and it seems better than the alternatives at this stage.
     * </p>
     *
     * @param sourceObject
