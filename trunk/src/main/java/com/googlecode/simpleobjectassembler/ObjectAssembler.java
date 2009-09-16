@@ -25,16 +25,15 @@ import com.googlecode.simpleobjectassembler.converter.dao.EntityDao;
  * child fields with an ignore parameter of:
  * </p>
  * <code>new String[]{"children.lastName"}</code>
- * 
+ *
  * @author robmonie
- * 
  */
 public interface ObjectAssembler extends ConverterRegistry {
 
    /**
     * Assemble the source object to the destination class by looking up the
     * assembler registry for a converter of this type combination.
-    * 
+    *
     * @param <T>
     * @param sourceObject
     * @param destinationClass
@@ -43,7 +42,6 @@ public interface ObjectAssembler extends ConverterRegistry {
    <T> T assemble(Object sourceObject, Class<T> destinationClass);
 
    /**
-    * 
     * <p>
     * Assemble the source object to the destination class by looking up the
     * assembler registry for a converter of this type combination. has the
@@ -60,7 +58,7 @@ public interface ObjectAssembler extends ConverterRegistry {
     * incur the overhead of populating any of the fields as they are known not
     * to change within the context.
     * </p>
-    * 
+    *
     * @param <T>
     * @param sourceObject
     * @param destinationClass
@@ -68,6 +66,17 @@ public interface ObjectAssembler extends ConverterRegistry {
     * @return
     */
    <T> T assemble(Object sourceObject, Class<T> destinationClass, String... ignoreProperties);
+
+/**
+    * <p>
+    * Map the fields from the first object to the second object.
+    * </p>
+    *
+    * @param sourceObject
+    * @param destinationObject
+    */
+   <T> T assemble(Object sourceObject, T destinationObject);
+
 
    /**
     * <p>
@@ -78,11 +87,10 @@ public interface ObjectAssembler extends ConverterRegistry {
     * A wildcard string "*" can be specified for the ignoreProperties argument
     * if no properties are to be mapped under a given path. This is useful in
     * situations such as when the converter is intended to simply populate /
-    * create a destination object by looking it up from the database but not
-    * incur the overhead of populating any of the fields as they are known not
-    * to change within the context.
+    * create a destination object but not incur the overhead of populating
+    * any of the fields as they are known not to change within the context.
     * </p>
-    * 
+    *
     * @param sourceObject
     * @param destinationObject
     * @param ignoreProperties
@@ -92,14 +100,14 @@ public interface ObjectAssembler extends ConverterRegistry {
    /**
     * Should the assembler attempt to automatically convert objects based purely
     * on reflection if no specific converter is found.
-    * 
+    *
     * @return
     */
    boolean isAutomapWhenNoConverterFound();
 
    /**
     * Get the EntityDao, if one exists from the assembler.
-    * 
+    *
     * @return
     */
    EntityDao<? extends Object> getEntityDao();

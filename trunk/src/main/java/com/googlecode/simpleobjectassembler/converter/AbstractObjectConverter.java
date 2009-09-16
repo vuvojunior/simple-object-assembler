@@ -1,18 +1,12 @@
 package com.googlecode.simpleobjectassembler.converter;
 
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-
+import com.googlecode.simpleobjectassembler.ObjectAssembler;
+import com.googlecode.simpleobjectassembler.beans.FallbackPropertyAccessor;
+import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
+import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
+import com.googlecode.simpleobjectassembler.converter.mapping.*;
+import com.googlecode.simpleobjectassembler.utils.CollectionUtils;
+import com.googlecode.simpleobjectassembler.utils.GenericTypeResolver;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.beans.PropertyAccessor;
@@ -21,19 +15,10 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.core.GenericCollectionTypeResolver;
 import org.springframework.util.ReflectionUtils;
 
-import com.googlecode.simpleobjectassembler.ObjectAssembler;
-import com.googlecode.simpleobjectassembler.beans.FallbackPropertyAccessor;
-import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
-import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
-import com.googlecode.simpleobjectassembler.converter.mapping.CollectionPropertyMapper;
-import com.googlecode.simpleobjectassembler.converter.mapping.ConverterFieldMapping;
-import com.googlecode.simpleobjectassembler.converter.mapping.DifferentTypePropertyMapper;
-import com.googlecode.simpleobjectassembler.converter.mapping.IgnoreSet;
-import com.googlecode.simpleobjectassembler.converter.mapping.PropertyDescriptorPair;
-import com.googlecode.simpleobjectassembler.converter.mapping.PropertyMapper;
-import com.googlecode.simpleobjectassembler.converter.mapping.SameTypePropertyMapper;
-import com.googlecode.simpleobjectassembler.utils.CollectionUtils;
-import com.googlecode.simpleobjectassembler.utils.GenericTypeResolver;
+import javax.annotation.PostConstruct;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
+import java.util.*;
 
 public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObjectClass> implements
       ObjectConverter<SourceObjectClass, DestinationObjectClass> {
