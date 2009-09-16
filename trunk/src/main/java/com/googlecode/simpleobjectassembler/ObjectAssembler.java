@@ -90,6 +90,9 @@ public interface ObjectAssembler extends ConverterRegistry {
     * create a destination object but not incur the overhead of populating
     * any of the fields as they are known not to change within the context.
     * </p>
+    * <p>
+    * If mapping directly
+    * </p>
     *
     * @param sourceObject
     * @param destinationObject
