@@ -111,7 +111,7 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
          final Collection sourceCollection = (Collection) sourceObject;
 
          for (Iterator it = sourceCollection.iterator(); it.hasNext();) {
-            destinationCollection.add(assemble(it.next(), destinationCollectionType));
+            destinationCollection.add(assemble(it.next(), destinationCollectionType, ignoreProperties));
          }
 
          return (T) destinationCollection;
