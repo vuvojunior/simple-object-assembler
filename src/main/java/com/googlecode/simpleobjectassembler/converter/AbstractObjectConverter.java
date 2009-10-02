@@ -76,14 +76,14 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    }
 
    public final DestinationObjectClass convert(SourceObjectClass sourceObject, ConversionCache conversionCache,
-         String[] ignoreProperties) {
+         Exclusions exclusions) {
 
-      return convert(sourceObject, createDestinationObject(sourceObject), conversionCache, ignoreProperties);
+      return convert(sourceObject, createDestinationObject(sourceObject), conversionCache, exclusions);
 
    }
 
    public final DestinationObjectClass convert(SourceObjectClass sourceObject,
-         DestinationObjectClass destinationObject, ConversionCache conversionCache, String[] ignoreProperties) {
+         DestinationObjectClass destinationObject, ConversionCache conversionCache, Exclusions exclusions) {
 
       final DestinationObjectClass previouslyConvertedDestinationObject = (DestinationObjectClass) conversionCache
             .getConvertedObjectBySourceObjectAndDestinationType(sourceObject, getDestinationObjectClass());
@@ -97,25 +97,25 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
       }
 
       initialiseFieldMappingIfRequired();
-      final IgnoreSet explicitIgnoreSet = alwaysIgnoreProperties();
-      Collections.addAll(explicitIgnoreSet.getSet(), DEFAULT_PROPERTIES_TO_IGNORE);
-      Collections.addAll(explicitIgnoreSet.getSet(), ignoreProperties);
+      final Exclusions explicitExclusions = alwaysExcludeProperties();
+      Collections.addAll(explicitExclusions.getSet(), DEFAULT_PROPERTIES_TO_IGNORE);
+      explicitExclusions.getSet().addAll(exclusions.getSet());
 
-      validatePropertiesToIgnore(destinationObject, ignoreProperties);
+      validatePropertiesToIgnore(destinationObject, exclusions);
 
       final Set<String> fullIgnoreSet = new HashSet<String>();
-      fullIgnoreSet.addAll(explicitIgnoreSet.getSet());
+      fullIgnoreSet.addAll(explicitExclusions.getSet());
 
       if (!disableAutoMapping() && !fullIgnoreSet.contains(PROPERTY_EXCLUSION_WILDCARD_CHARACTER)) {
 
          final PropertyAccessor sourcePropertyAccessor = new FallbackPropertyAccessor(sourceObject);
          final PropertyAccessor destinationPropertyAccessor = new FallbackPropertyAccessor(destinationObject);
 
-         sameTypePropertyMapper.mapProperties(conversionCandidatesOfSameType, explicitIgnoreSet,
+         sameTypePropertyMapper.mapProperties(conversionCandidatesOfSameType, explicitExclusions,
                sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
-         differentTypePropertyMapper.mapProperties(conversionCandidatesOfDifferentType, explicitIgnoreSet,
+         differentTypePropertyMapper.mapProperties(conversionCandidatesOfDifferentType, explicitExclusions,
                sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
-         collectionPropertyMapper.mapProperties(collectionConversionCandidates, explicitIgnoreSet,
+         collectionPropertyMapper.mapProperties(collectionConversionCandidates, explicitExclusions,
                sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
 
       }
@@ -194,22 +194,22 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
     * 
     * @return
     */
-   protected IgnoreSet alwaysIgnoreProperties() {
-      return new IgnoreSet();
+   protected Exclusions alwaysExcludeProperties() {
+      return new Exclusions();
    }
 
    /**
     * Validates that the properties in the ignore list are actually valid
     * fields.
     * 
-    * @param sourceObject
-    * @param ignoreProperties
+    * @param destinationObject
+    * @param exclusions
     */
-   private void validatePropertiesToIgnore(DestinationObjectClass destinationObject, String[] ignoreProperties) {
+   private void validatePropertiesToIgnore(DestinationObjectClass destinationObject, Exclusions exclusions) {
 
       final PropertyAccessor beanPropertyAccessor = new DirectFieldAccessor(destinationObject);
       final List<String> invalidProperties = new ArrayList<String>();
-      for (String property : ignoreProperties) {
+      for (String property : exclusions.getSet()) {
          String localProperty = property;
          if (property.indexOf(".") > 0) {
             localProperty = property.substring(0, property.indexOf("."));
@@ -309,7 +309,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
    private boolean shouldMapFieldNames(final String sourceName, final String destinationName) {
 
-      return ((sourceName.equals(destinationName) || conversionMappingExists(sourceName, destinationName)) && !alwaysIgnoreProperties()
+      return ((sourceName.equals(destinationName) || conversionMappingExists(sourceName, destinationName)) && !alwaysExcludeProperties()
             .contains(destinationName));
    }
 

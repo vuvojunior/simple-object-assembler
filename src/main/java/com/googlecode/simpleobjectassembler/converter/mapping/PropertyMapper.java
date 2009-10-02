@@ -10,7 +10,7 @@ import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
 public interface PropertyMapper {
 
    public abstract void mapProperties(List<PropertyDescriptorPair> conversionCandidates, 
-         IgnoreSet explicitIgnoreSet,
+         Exclusions explicitExclusions,
          PropertyAccessor sourcePropertyAccessor, 
          PropertyAccessor destinationPropertyAccessor,
          ConversionCache conversionCache,

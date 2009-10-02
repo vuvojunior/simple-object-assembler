@@ -3,6 +3,7 @@ package com.googlecode.simpleobjectassembler.converter;
 import com.googlecode.simpleobjectassembler.ObjectAssembler;
 import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
 import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
+import com.googlecode.simpleobjectassembler.converter.mapping.Exclusions;
 
 /**
  * A converter for converting a source object to a destination type. Should be
@@ -28,12 +29,12 @@ public interface ObjectConverter<SourceObjectClass, DestinationObjectClass> {
     * any of the fields as they are known not to change within the context.
     * 
     * @param sourceObject
-    * @param ignoreProperties
+    * @param exclusions
     *           properties to ignore if autoMapIdenticalFields() returns true
     * @return
     */
    DestinationObjectClass convert(SourceObjectClass sourceObject, ConversionCache conversionCache,
-         String[] ignoreProperties);
+         Exclusions exclusions);
 
    /**
     * Map the source object to the destinationObject ignoring specific
@@ -46,11 +47,11 @@ public interface ObjectConverter<SourceObjectClass, DestinationObjectClass> {
     * 
     * @param sourceObject
     * @param destinationObject
-    * @param ignoreProperties
+    * @param exclusions
     * @return
     */
    DestinationObjectClass convert(SourceObjectClass sourceObject, DestinationObjectClass destinationObject,
-         ConversionCache conversionCache, String[] ignoreProperties);
+         ConversionCache conversionCache, Exclusions exclusions);
 
    /**
     * Returns the type of the source object that this converter acts upon.

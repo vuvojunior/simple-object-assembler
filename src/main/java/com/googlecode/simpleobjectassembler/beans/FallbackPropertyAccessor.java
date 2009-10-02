@@ -32,10 +32,10 @@ public class FallbackPropertyAccessor implements PropertyAccessor {
 
    public Object getPropertyValue(final String propertyName) {
       try {
-         return directFieldAccessor.getPropertyValue(propertyName);
-      }
-      catch (NotReadablePropertyException e) {
          return beanWrapper.getPropertyValue(propertyName);
+      }
+      catch (BeansException e) {
+         return directFieldAccessor.getPropertyValue(propertyName);
       }
    }
 

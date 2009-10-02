@@ -1,0 +1,56 @@
+0.5.0 (current)
+
+    * Added provision for assembling collections directly. Eg. assembler.assemble(listA, new List<Type>(){}). See documentation for explanation of destination collection type inference requirements.
+    * Changed naming of term "ignore" to "exclude" throughout framework. IgnoreSet is now Exclusions
+    * Deprecated assembler.assemble methods that take a var-args string array of exclusion paths in favour of supplying an Exclusions object.
+    * Added static class & factory method for simplified creation of an exclusions object based on a var-arg string array. Eg. MappingPaths.exclude("pathA, "pathB", "pathN")
+      This helps to keep the intent of the assembler method cleaner and more concise. Eg. assembler.assemble(user, UserDto.class, exclude("password", "dob"));
+    * Changed behaviour of property mapping to always try to use an accessor method (set / get) in favour of direct field acccess if it exists.
+    
+
+0.4.4 (2009-07-29)
+
+    * Fixed a bug that caused lazy hibernate collections to get 'touched' when mapping was set to ignore the property. Whiel this didn't map the collection it did cause the collection to be loaded unnecessarily.
+
+0.4.3 (2009-07-03)
+
+    * Fixed a bug where setting disableAutoMapping() to true still tries to determine potential mappings for nested objects even though it will never actually map them. This could be problematic if the nested objects could not be mapped automatically and no converter was registered for them.
+
+0.4.2
+
+    * Fixed a problem where when attempting to map between different collection types the assembler would not perform the mapping automatically
+
+0.4.1
+
+This is a small api change release that simplifies a couple of commonly used methods. It will require changes to any existing converters. Please see upgrade notes below.
+
+    * Changed the return type of the alwaysIgnoreFields() method on a converter from a HashSet<String> to an internally defined IgnoreSet which has a string varargs constructor and is chainable. This makes for simpler implementation as you can simply do this... return new IgnoreSet("field1", "field2", "fieldN").
+    * Removed the return type on the overridable convert(...) method of a converter as it was unnecessary. This method is now void.
+
+Upgrade notes:
+
+   1. Change all converters that implement the convert(...) method to return void instead of the destination object.
+   2. Change all converters that implement the alwaysIgnoreProperties() method to return an IgnoreSet.
+
+0.4.0
+
+    * You no longer need to implement the methods getSourceObjectClass() and getDestinationObjectClass() as these are inferred via generics.
+    * You can now set the object assembler to attempt to convert objects automatically if no converter is explicitly registered for the source / destination classes. This is very convenient for basic situations where there are no special rules for the conversion as no converter needs to be written.
+    * As an extension to the auto-mapping described above, you can also inject an EntityDao? for looking up JPA / Hibernate mapped entities by id when converting to an entity mapped using the javax.persistence.Entity annotation. Basic Hibernate and JPA implementations have been provided but you can plug-in your own as required. While I haven't tested it with anything other than Hibernate, it's highly likely that this will work with any JPA implementation but you'll need to inject your own. One caveat with this however is that in order to look up the entity using the supplied EntityDao?, SimpleObjectAssembler? needs to know what field in your dto holds the id of the entity to fetch. To achieve this, annotate your dto with the EntityDto? annotation supplying the field to get the entity id from. Eg. @EntityDto?(id = "id")
+    * Fixed problem where source objects must have a property for every method prefixed with 'get'. This meant that methods that did things like combine other properties or perform calculations would cause the assembler to fail. These 'computed' getters can now be mapped directly to destination objects.
+    * Added default converters for mapping strings and numbers.
+
+0.3.1
+
+Skipped straight to 0.3.1 due to a small bug in 0.3.0
+
+    * Fixed a problem where defining exclusions directly in a converter using alwaysIgnoreProperties() for a source > destination field pair that didn't have a converter registered threw an exception on initialization.
+
+0.2.0
+
+    * Internal code cleanup and refactoring
+    * Using the * wildcard in property paths to ignore now also prevents the explicit user-defined 'convert' method from being called.
+
+0.1.0
+
+    * Initial release. See Getting Started Guide

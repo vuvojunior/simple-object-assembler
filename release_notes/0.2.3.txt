@@ -1,5 +1,0 @@
-
-Changes
----------
-- You can now register a converter for objects of the same type.  Useful for when you always want to do something 
-to the object on the way through such as enforce a timezone on a date.

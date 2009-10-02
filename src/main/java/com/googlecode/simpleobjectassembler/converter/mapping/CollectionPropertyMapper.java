@@ -24,18 +24,18 @@ public class CollectionPropertyMapper extends AbstractPropertyMapper {
     * TODO: RM Need to handle case where the destination collection size is
     * different to the source - add new or remove deleted items.
     * 
-    * @param explicitIgnoreSet
+    * @param explicitExclusions
     * @param sourcePropertyAccessor
     * @param destinationPropertyAccessor
     */
-   public void mapProperties(List<PropertyDescriptorPair> conversionCandidates, final IgnoreSet explicitIgnoreSet,
+   public void mapProperties(List<PropertyDescriptorPair> conversionCandidates, final Exclusions explicitExclusions,
          final PropertyAccessor sourcePropertyAccessor, final PropertyAccessor destinationPropertyAccessor,
          ConversionCache conversionCache, CachingObjectAssembler objectAssembler) {
 
       for (PropertyDescriptorPair pdp : conversionCandidates) {
          final String sourcePropertyName = pdp.getSource().getName();
          final String destinationPropertyName = pdp.getDestination().getName();
-         if (!explicitIgnoreSet.contains(destinationPropertyName)) {
+         if (!explicitExclusions.contains(destinationPropertyName)) {
 
             final Class<?> destinationCollectionType = destinationPropertyAccessor
                   .getPropertyType(destinationPropertyName);
@@ -49,7 +49,7 @@ public class CollectionPropertyMapper extends AbstractPropertyMapper {
 
             if (sourceCollection != null) {
 
-               final String[] nestedExclusions = getNestedPropertyExclusions(destinationPropertyName, explicitIgnoreSet);
+               final Set<String> nestedExclusions = getNestedPropertyExclusions(destinationPropertyName, explicitExclusions);
 
                if (destinationCollection != null && CollectionUtils.isOrderedCollection(destinationCollection)
                      && CollectionUtils.isOrderedCollection(sourceCollection)
@@ -60,7 +60,7 @@ public class CollectionPropertyMapper extends AbstractPropertyMapper {
                      final Object sourceObject = it.next();
                      final Object destinationObject = CollectionUtils.retrieveIndexedValueFromCollection(
                            destinationCollection, i);
-                     objectAssembler.assemble(sourceObject, destinationObject, conversionCache, nestedExclusions);
+                     objectAssembler.assemble(sourceObject, destinationObject, conversionCache, new Exclusions(nestedExclusions));
                   }
                }
                else {
@@ -79,7 +79,7 @@ public class CollectionPropertyMapper extends AbstractPropertyMapper {
 
                   for (final Iterator it = sourceCollection.iterator(); it.hasNext();) {
                      final Object convertedObject = objectAssembler.assemble(it.next(),
-                           genericDestinationCollectionType, conversionCache, nestedExclusions);
+                           genericDestinationCollectionType, conversionCache, new Exclusions(nestedExclusions));
                      destinationCollection.add(convertedObject);
                   }
 
