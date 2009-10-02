@@ -1,6 +1,7 @@
 package com.googlecode.simpleobjectassembler.converter.mapping;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.PropertyAccessor;
 
@@ -9,25 +10,25 @@ import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
 
 public class DifferentTypePropertyMapper extends AbstractPropertyMapper {
 
-   public void mapProperties(List<PropertyDescriptorPair> conversionCandidates, IgnoreSet explicitIgnoreSet,
+   public void mapProperties(List<PropertyDescriptorPair> conversionCandidates, Exclusions explicitExclusions,
          PropertyAccessor sourcePropertyAccessor, PropertyAccessor destinationPropertyAccessor,
          ConversionCache conversionCache, CachingObjectAssembler objectAssembler) {
 
       // check each conversion candidate and convert if not explicitly set to
-      // ignore
+      // exclude
       for (PropertyDescriptorPair pdp : conversionCandidates) {
          final String destinationPropertyName = pdp.getDestination().getName();
          final String sourcePropertyName = pdp.getSource().getName();
-         if (!explicitIgnoreSet.contains(destinationPropertyName)) {
+         if (!explicitExclusions.contains(destinationPropertyName)) {
             
             final Class<?> destinationType = destinationPropertyAccessor.getPropertyType(destinationPropertyName);
             final Object nestedSourceObject= sourcePropertyAccessor.getPropertyValue(sourcePropertyName);
 
             Object convertedValue = null;
             if (nestedSourceObject != null && convertedValue == null) {
-               final String[] nestedExclusions = getNestedPropertyExclusions(destinationPropertyName, explicitIgnoreSet);
+               final Set<String> nestedExclusions = getNestedPropertyExclusions(destinationPropertyName, explicitExclusions);
                convertedValue = objectAssembler.assemble(nestedSourceObject, destinationType, conversionCache,
-                     nestedExclusions);
+                     new Exclusions(nestedExclusions));
             }
 
             destinationPropertyAccessor.setPropertyValue(destinationPropertyName, convertedValue);

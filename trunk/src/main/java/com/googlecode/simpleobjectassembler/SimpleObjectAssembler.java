@@ -8,6 +8,8 @@ import com.googlecode.simpleobjectassembler.converter.ConversionException;
 import com.googlecode.simpleobjectassembler.converter.DefaultConverters;
 import com.googlecode.simpleobjectassembler.converter.GenericConverter;
 import com.googlecode.simpleobjectassembler.converter.ObjectConverter;
+import com.googlecode.simpleobjectassembler.converter.mapping.Exclusions;
+import com.googlecode.simpleobjectassembler.converter.mapping.MappingPaths;
 import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
 import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
 import com.googlecode.simpleobjectassembler.converter.dao.EntityDao;
@@ -15,7 +17,6 @@ import com.googlecode.simpleobjectassembler.registry.ConverterRegistryImpl;
 import com.googlecode.simpleobjectassembler.utils.CglibUtils;
 import com.googlecode.simpleobjectassembler.utils.CollectionUtils;
 
-import java.util.List;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -43,19 +44,24 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
    }
 
    public <T> T assemble(Object sourceObject, Class<T> destinationClass) {
-      return assemble(sourceObject, destinationClass, new ConversionCache(), new String[]{});
+      return assemble(sourceObject, destinationClass, new ConversionCache(), new Exclusions());
    }
 
+
    public <T> T assemble(Object sourceObject, ConversionCache conversionCache, Class<T> destinationClass) {
-      return assemble(sourceObject, destinationClass, conversionCache, new String[]{});
+      return assemble(sourceObject, destinationClass, conversionCache, new Exclusions());
    }
 
    public final <T> T assemble(Object sourceObject, Class<T> destinationClass, String... ignoreProperties) {
-      return assemble(sourceObject, destinationClass, new ConversionCache(), ignoreProperties);
+      return assemble(sourceObject, destinationClass, new ConversionCache(), MappingPaths.exclude(ignoreProperties));
+   }
+
+   public final <T> T assemble(Object sourceObject, Class<T> destinationClass, Exclusions exclusions) {
+      return assemble(sourceObject, destinationClass, new ConversionCache(), exclusions);
    }
 
    public final <T> T assemble(Object sourceObject, Class<T> destinationClass, ConversionCache conversionCache,
-                               String... ignoreProperties) {
+                               Exclusions exclusions) {
       if (sourceObject == null) {
          return null;
       }
@@ -77,19 +83,23 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
          throw new ConversionException(sourceObject.getClass(), destinationClass);
       }
 
-      return (T) objectConverter.convert(sourceObject, conversionCache, ignoreProperties);
+      return (T) objectConverter.convert(sourceObject, conversionCache, exclusions);
    }
 
    public final <T> T assemble(Object sourceObject, T destinationObject) {
-      return this.assemble(sourceObject, destinationObject, new ConversionCache(), new String[]{});
+      return this.assemble(sourceObject, destinationObject, new ConversionCache(), new Exclusions());
    }
 
    public final <T> T assemble(Object sourceObject, T destinationObject, String... ignoreProperties) {
-      return this.assemble(sourceObject, destinationObject, new ConversionCache(), ignoreProperties);
+      return this.assemble(sourceObject, destinationObject, new ConversionCache(), MappingPaths.exclude(ignoreProperties));
+   }
+
+   public <T> T assemble(Object sourceObject, T destinationObject, Exclusions exclusions) {
+      return this.assemble(sourceObject, destinationObject, new ConversionCache(), exclusions);
    }
 
    public final <T> T assemble(Object sourceObject, T destinationObject, ConversionCache conversionCache,
-                               String... ignoreProperties) {
+                               Exclusions exclusions) {
 
       if (sourceObject == null) {
          return null;
@@ -111,7 +121,7 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
          final Collection sourceCollection = (Collection) sourceObject;
 
          for (Iterator it = sourceCollection.iterator(); it.hasNext();) {
-            destinationCollection.add(assemble(it.next(), destinationCollectionType, ignoreProperties));
+            destinationCollection.add(assemble(it.next(), destinationCollectionType, exclusions));
          }
 
          return (T) destinationCollection;
@@ -121,7 +131,7 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
       try {
          final ObjectConverter objectConverter = converterRegistry.getConverter(sourceObject, CglibUtils
                .resolveTargetClassIfProxied(destinationObject));
-         return (T) objectConverter.convert(sourceObject, destinationObject, conversionCache, ignoreProperties);
+         return (T) objectConverter.convert(sourceObject, destinationObject, conversionCache, exclusions);
       }
       catch (ClassNotFoundException e) {
          // This shouldn't be possible

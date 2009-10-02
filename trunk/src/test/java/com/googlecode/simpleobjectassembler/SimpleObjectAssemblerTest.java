@@ -14,7 +14,6 @@ import junit.framework.Assert;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.stereotype.Component;
 
 import com.googlecode.simpleobjectassembler.converter.AbstractObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.ConversionException;
@@ -31,6 +30,7 @@ import com.googlecode.simpleobjectassembler.converter.SourceToDestinationTestObj
 import com.googlecode.simpleobjectassembler.converter.SourceToDestinationWithDifferentFieldNameObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.StubEntity;
 import com.googlecode.simpleobjectassembler.converter.StubEntityDto;
+import static com.googlecode.simpleobjectassembler.converter.mapping.MappingPaths.*;
 import com.googlecode.simpleobjectassembler.converter.dao.EntityDao;
 import com.googlecode.simpleobjectassembler.registry.ConverterRegistryException;
 import com.googlecode.simpleobjectassembler.utils.GenericTypeResolver;
@@ -115,8 +115,7 @@ public class SimpleObjectAssemblerTest {
    @Test
    public void shouldIgnorePropertiesWhenWildcardProvided() {
       final SourceObject sourceObject = createFullyPopulatedSourceObject();
-      final DestinationObject destinationObject = objectAssembler.assemble(sourceObject, DestinationObject.class,
-            "nestedObject.*");
+      final DestinationObject destinationObject = objectAssembler.assemble(sourceObject, DestinationObject.class, exclude("nestedObject.*"));
 
       Assert.assertNull(destinationObject.getNestedObject().getString());
       Assert.assertNull(destinationObject.getNestedObject().getOtherString());
@@ -127,7 +126,7 @@ public class SimpleObjectAssemblerTest {
 
       final SourceObject sourceObject = createFullyPopulatedSourceObject();
       final DestinationObject destinationObject = objectAssembler.assemble(sourceObject, DestinationObject.class,
-            "nestedObjectList.string");
+            exclude("nestedObjectList.string"));
 
       Assert.assertNull(destinationObject.getNestedObjectList().get(0).getString());
       Assert.assertNull(destinationObject.getNestedObjectList().get(1).getString());
@@ -155,7 +154,7 @@ public class SimpleObjectAssemblerTest {
       sourceObject.setNestedObject(null);
 
       final DestinationObject destinationObject = objectAssembler.assemble(sourceObject, DestinationObject.class,
-            "nestedObjectList.string");
+            exclude("nestedObjectList.string"));
 
       Assert.assertNull(destinationObject.getNestedObject());
    }
@@ -177,7 +176,7 @@ public class SimpleObjectAssemblerTest {
 
       final SourceObject sourceObject = createFullyPopulatedSourceObject();
       final DestinationObject destinationObject = objectAssembler.assemble(sourceObject, DestinationObject.class,
-            "nestedObjectList.string");
+            exclude("nestedObjectList.string"));
 
       Assert.assertEquals("a", destinationObject.getNestedObjectList().get(0).getString());
       Assert.assertEquals("a", destinationObject.getNestedObjectList().get(1).getString());
@@ -204,7 +203,7 @@ public class SimpleObjectAssemblerTest {
 
       final SourceObject sourceObject = createFullyPopulatedSourceObject();
       final DestinationObject destinationObject = objectAssembler.assemble(sourceObject, DestinationObject.class,
-            "nestedObjectCollection.string");
+            exclude("nestedObjectCollection.string"));
 
       Assert.assertEquals("a", destinationObject.getNestedObjectCollection().get(0).getString());
       Assert.assertEquals("a", destinationObject.getNestedObjectCollection().get(1).getString());
@@ -231,7 +230,7 @@ public class SimpleObjectAssemblerTest {
 
       final SourceObject sourceObject = createFullyPopulatedSourceObject();
       final DestinationObject destinationObject = objectAssembler.assemble(sourceObject, DestinationObject.class,
-            "nestedObjectSet.string");
+            exclude("nestedObjectSet.string"));
 
       Assert.assertNull(destinationObject.getNestedObjectSet().iterator().next().getString());
 
@@ -257,7 +256,7 @@ public class SimpleObjectAssemblerTest {
       try {
          final SourceObject sourceObject = createFullyPopulatedSourceObject();
          objectAssembler.assemble(sourceObject, DestinationObject.class, "invalidProperty");
-         Assert.fail("Expected an Exception to have been thrown due to invalid ignore properties");
+         Assert.fail("Expected an Exception to have been thrown due to invalid exclude properties");
       }
       catch (ConversionException e) {
          ;// Expected Exception.

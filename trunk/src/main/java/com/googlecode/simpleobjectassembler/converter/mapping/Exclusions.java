@@ -4,35 +4,39 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class IgnoreSet {
+public class Exclusions {
 
    private final Set<String> properties = new HashSet<String>();
 
-   public IgnoreSet() {
-     
+   public Exclusions() {
+
    }
-   
-   public IgnoreSet(String... properties) {
-      for(String property : properties) {
+
+   public Exclusions(String... properties) {
+      for (String property : properties) {
          this.properties.add(property);
       }
    }
-   
-   public IgnoreSet add(String property) {
+
+   public Exclusions(Set properties) {
+      this.properties.addAll(properties);
+   }
+
+   public Exclusions add(String property) {
       this.properties.add(property);
       return this;
    }
-   
-   public IgnoreSet remove(String property) {
+
+   public Exclusions remove(String property) {
       this.properties.remove(property);
       return this;
    }
-   
-   public IgnoreSet empty() {
+
+   public Exclusions empty() {
       this.properties.clear();
       return this;
-   } 
-   
+   }
+
    public Set<String> getSet() {
       return this.properties;
    }
@@ -40,5 +44,5 @@ public class IgnoreSet {
    public boolean contains(String value) {
       return this.properties.contains(value);
    }
-   
+
 }
