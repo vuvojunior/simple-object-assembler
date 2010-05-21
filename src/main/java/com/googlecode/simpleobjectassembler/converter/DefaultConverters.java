@@ -103,6 +103,17 @@ public class DefaultConverters {
          }
       });
 
+      converters.add(new AbstractObjectConverter<Boolean, Boolean>() {
+
+         public Boolean createDestinationObject(Boolean bool) {
+            if (bool == null) {
+               return null;
+            }
+
+            return Boolean.valueOf(bool);
+         }
+      });
+
       
       //inject assembler into each converter
       for (ObjectConverter converter : this.converters) {

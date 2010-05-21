@@ -21,6 +21,8 @@ public class SourceObject {
 
    private Set<NestedSourceObject> nestedObjectSet;
 
+   private Boolean booleanVal = true;
+
    public SourceObject() {
       
    }
@@ -99,6 +101,14 @@ public class SourceObject {
    
    public void setNestedObjectCollection(Set<NestedSourceObject> nestedObjectCollection) {
       this.nestedObjectCollection = nestedObjectCollection;
+   }
+
+   public Boolean getBooleanVal() {
+      return booleanVal;
+   }
+
+   public void setBooleanVal(Boolean booleanVal) {
+      this.booleanVal = booleanVal;
    }
 
    @Override

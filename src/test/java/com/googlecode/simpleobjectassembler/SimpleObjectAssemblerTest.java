@@ -75,6 +75,7 @@ public class SimpleObjectAssemblerTest {
       Assert.assertNull(destinationObject.getDifferentNameDestination());
       Assert.assertNull(destinationObject.getNestedObjectDifferentNameDestination());
       Assert.assertNull(destinationObject.getNestedObjectListDifferentNameDestination());
+      Assert.assertTrue(destinationObject.getBooleanVal());
 
    }
 
@@ -459,7 +460,8 @@ public class SimpleObjectAssemblerTest {
       
       assertNotNull(objectAssembler.assemble(new Date(), Calendar.class));
    }
-   
+
+
 
    
    public class DateToCalendarConverter extends AbstractObjectConverter<Date, Calendar> {

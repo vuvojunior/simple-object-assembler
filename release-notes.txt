@@ -1,4 +1,7 @@
-0.5.0 (current)
+0.4.8 (current)
+    * Added fix for conversion of Boolean to Boolean that was throwing an exception.
+
+0.4.7
 
     * Added provision for assembling collections directly. Eg. assembler.assemble(listA, new List<Type>(){}). See documentation for explanation of destination collection type inference requirements.
     * Changed naming of term "ignore" to "exclude" throughout framework. IgnoreSet is now Exclusions

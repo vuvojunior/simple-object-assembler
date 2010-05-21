@@ -21,6 +21,8 @@ public class DestinationObject {
 
    private List<NestedDestinationObject> nestedObjectListDifferentNameDestination;
 
+   private Boolean booleanVal = false;
+
    public String getString() {
       return string;
    }
@@ -84,6 +86,14 @@ public class DestinationObject {
 
    public void setNestedObjectCollection(List<NestedDestinationObject> nestedObjectCollection) {
       this.nestedObjectCollection = nestedObjectCollection;
+   }
+
+   public Boolean getBooleanVal() {
+      return booleanVal;
+   }
+
+   public void setBooleanVal(Boolean booleanVal) {
+      this.booleanVal = booleanVal;
    }
 
    @Override
