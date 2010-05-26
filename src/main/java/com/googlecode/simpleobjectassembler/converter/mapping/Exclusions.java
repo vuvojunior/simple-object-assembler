@@ -45,4 +45,20 @@ public class Exclusions {
       return this.properties.contains(value);
    }
 
+   @Override
+   public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Exclusions that = (Exclusions) o;
+
+      if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
+
+      return true;
+   }
+
+   @Override
+   public int hashCode() {
+      return properties != null ? properties.hashCode() : 0;
+   }
 }

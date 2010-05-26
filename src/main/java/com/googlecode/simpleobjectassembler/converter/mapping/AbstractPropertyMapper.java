@@ -35,13 +35,15 @@ public abstract class AbstractPropertyMapper implements PropertyMapper {
     * @return
     */
    protected Set<String> getNestedPropertyExclusions(String propertyBase, Exclusions explicitExclusions) {
+
       final Set<String> nestedProperties = new HashSet<String>();
+
+      final String nestedPropertyPrefix = propertyBase + ".";
+      final int prefixLength = nestedPropertyPrefix.length();
+
       for (String property : explicitExclusions.getSet()) {
-
-         final String nestedPropertyPrefix = propertyBase + ".";
-
          if (property.startsWith(nestedPropertyPrefix)) {
-            nestedProperties.add(StringUtils.replace(property, nestedPropertyPrefix, ""));
+            nestedProperties.add(property.substring(prefixLength));
          }
 
       }

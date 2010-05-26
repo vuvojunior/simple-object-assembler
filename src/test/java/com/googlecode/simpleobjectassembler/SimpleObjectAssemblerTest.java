@@ -9,27 +9,13 @@ import static org.junit.Assert.fail;
 
 import java.util.*;
 
+import com.googlecode.simpleobjectassembler.converter.*;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.googlecode.simpleobjectassembler.converter.AbstractObjectConverter;
-import com.googlecode.simpleobjectassembler.converter.ConversionException;
-import com.googlecode.simpleobjectassembler.converter.DestinationObject;
-import com.googlecode.simpleobjectassembler.converter.DestinationObjectProvidingObjectConverter;
-import com.googlecode.simpleobjectassembler.converter.DestinationObjectWithNoSetterForProperty;
-import com.googlecode.simpleobjectassembler.converter.NestedObjectConverter;
-import com.googlecode.simpleobjectassembler.converter.NestedSourceObject;
-import com.googlecode.simpleobjectassembler.converter.ObjectContainingGetterWithNoProperty;
-import com.googlecode.simpleobjectassembler.converter.ObjectWithSetterForAugmentedGetter;
-import com.googlecode.simpleobjectassembler.converter.SourceObject;
-import com.googlecode.simpleobjectassembler.converter.SourceObjectWithNoSetterForProperty;
-import com.googlecode.simpleobjectassembler.converter.SourceToDestinationTestObjectConverter;
-import com.googlecode.simpleobjectassembler.converter.SourceToDestinationWithDifferentFieldNameObjectConverter;
-import com.googlecode.simpleobjectassembler.converter.StubEntity;
-import com.googlecode.simpleobjectassembler.converter.StubEntityDto;
 import static com.googlecode.simpleobjectassembler.converter.mapping.MappingPaths.*;
 import com.googlecode.simpleobjectassembler.converter.dao.EntityDao;
 import com.googlecode.simpleobjectassembler.registry.ConverterRegistryException;
@@ -462,6 +448,28 @@ public class SimpleObjectAssemblerTest {
    }
 
 
+   @Test
+   public void shouldConvertBetweenPrimitivesAndAutoboxedTypes() {
+
+      objectAssembler.setAutomapWhenNoConverterFound(true);
+
+      final SourceObjectWithPrimitives sourceObject = new SourceObjectWithPrimitives();
+
+      final DestinationObjectWithPrimitives destinationObject = objectAssembler.assemble(sourceObject, DestinationObjectWithPrimitives.class);
+
+      Assert.assertEquals(sourceObject.getByteA(), destinationObject.getByteA().byteValue());
+      Assert.assertEquals(sourceObject.getByteB().byteValue(), destinationObject.getByteB());
+
+      Assert.assertEquals(sourceObject.getShortA(), destinationObject.getShortA().shortValue());
+      Assert.assertEquals(sourceObject.getShortB().shortValue(), destinationObject.getShortB());
+
+      Assert.assertEquals(sourceObject.getIntA(), destinationObject.getIntA().intValue());
+      Assert.assertEquals(sourceObject.getIntB().intValue(), destinationObject.getIntB());
+
+      Assert.assertEquals(sourceObject.getLongA(), destinationObject.getLongA().longValue());
+      Assert.assertEquals(sourceObject.getLongB().longValue(), destinationObject.getLongB());
+
+   }
 
    
    public class DateToCalendarConverter extends AbstractObjectConverter<Date, Calendar> {
