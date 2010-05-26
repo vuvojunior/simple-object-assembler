@@ -9,6 +9,7 @@ import org.springframework.beans.NotReadablePropertyException;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyValue;
 import org.springframework.beans.PropertyValues;
+import org.springframework.core.convert.TypeDescriptor;
 
 /**
  * A property accessor that will attempt to use field access for getting
@@ -46,6 +47,10 @@ public class FallbackPropertyAccessor implements PropertyAccessor {
       }
 
       return type;
+   }
+
+   public TypeDescriptor getPropertyTypeDescriptor(String s) throws BeansException {
+      return directFieldAccessor.getPropertyTypeDescriptor(s); 
    }
 
    public boolean isReadableProperty(String propertyName) {

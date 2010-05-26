@@ -1,5 +1,6 @@
 package com.googlecode.simpleobjectassembler;
 
+import com.googlecode.simpleobjectassembler.utils.PrimitiveTypeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.GenericCollectionTypeResolver;
@@ -60,25 +61,38 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
       return assemble(sourceObject, destinationClass, new ConversionCache(), exclusions);
    }
 
+
+   private boolean equalPrimitiveEquivilentTypes(Class sourceType, Class destinationType) {
+      if(sourceType.equals(destinationType) && PrimitiveTypeUtils.isPrimitiveEquivilent(sourceType)) {
+         return true;
+      }
+      return false;
+   }
+
+
    public final <T> T assemble(Object sourceObject, Class<T> destinationClass, ConversionCache conversionCache,
                                Exclusions exclusions) {
       if (sourceObject == null) {
          return null;
       }
 
+      Class<?> sourceClass;
+      try {
+         sourceClass = CglibUtils.resolveTargetClassIfProxied(sourceObject);
+      } catch (ClassNotFoundException e) {
+         throw new ConversionException("Can't find class for source object: " + sourceObject.getClass().getName(), e);
+      }
+
+      if(equalPrimitiveEquivilentTypes(sourceClass, destinationClass)) {
+         return (T) sourceObject;
+      }
+
+
       ObjectConverter objectConverter = converterRegistry.getConverter(sourceObject, destinationClass);
 
       if (objectConverter == null && automapWhenNoConverterFound) {
-         try {
-            objectConverter = new GenericConverter((CachingObjectAssembler) this, CglibUtils
-                  .resolveTargetClassIfProxied(sourceObject), destinationClass);
-         }
-         catch (ClassNotFoundException e) {
-            // This shouldn't be possible
-            LOG.error(e.getMessage());
-            throw new ConversionException("Could not load class", e);
-         }
-
+         objectConverter = new GenericConverter((CachingObjectAssembler) this, sourceClass, destinationClass);
+         this.registerConverter(objectConverter);
       } else if (objectConverter == null) {
          throw new ConversionException(sourceObject.getClass(), destinationClass);
       }
@@ -86,17 +100,25 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
       return (T) objectConverter.convert(sourceObject, conversionCache, exclusions);
    }
 
+
+
    public final <T> T assemble(Object sourceObject, T destinationObject) {
       return this.assemble(sourceObject, destinationObject, new ConversionCache(), new Exclusions());
    }
+
+
 
    public final <T> T assemble(Object sourceObject, T destinationObject, String... ignoreProperties) {
       return this.assemble(sourceObject, destinationObject, new ConversionCache(), MappingPaths.exclude(ignoreProperties));
    }
 
+
+
    public <T> T assemble(Object sourceObject, T destinationObject, Exclusions exclusions) {
       return this.assemble(sourceObject, destinationObject, new ConversionCache(), exclusions);
    }
+
+
 
    public final <T> T assemble(Object sourceObject, T destinationObject, ConversionCache conversionCache,
                                Exclusions exclusions) {
@@ -106,7 +128,7 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
       }
 
       if (CollectionUtils.isOrderedCollection(sourceObject) && CollectionUtils.isOrderedCollection(destinationObject)) {
-         final Class destinationCollectionType = GenericCollectionTypeResolver.getCollectionType(destinationObject.getClass());
+         final Class destinationCollectionType = GenericCollectionTypeResolver.getCollectionType(((Collection)destinationObject).getClass());
          if (destinationCollectionType == null) {
             throw new ConversionException(new StringBuilder()
                   .append("You have attempted to convert between generic collections where the destination collection ")

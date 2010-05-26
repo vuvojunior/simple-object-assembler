@@ -8,7 +8,7 @@ import org.springframework.beans.PropertyAccessor;
 import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
 import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
 
-public class DifferentTypePropertyMapper extends AbstractPropertyMapper {
+public class DefaultPropertyMapper extends AbstractPropertyMapper {
 
    public void mapProperties(List<PropertyDescriptorPair> conversionCandidates, Exclusions explicitExclusions,
          PropertyAccessor sourcePropertyAccessor, PropertyAccessor destinationPropertyAccessor,

@@ -5,8 +5,8 @@ import com.googlecode.simpleobjectassembler.beans.FallbackPropertyAccessor;
 import com.googlecode.simpleobjectassembler.converter.cache.CachingObjectAssembler;
 import com.googlecode.simpleobjectassembler.converter.cache.ConversionCache;
 import com.googlecode.simpleobjectassembler.converter.mapping.*;
-import com.googlecode.simpleobjectassembler.utils.CollectionUtils;
 import com.googlecode.simpleobjectassembler.utils.GenericTypeResolver;
+import com.googlecode.simpleobjectassembler.utils.PrimitiveTypeUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.beans.PropertyAccessor;
@@ -37,19 +37,20 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
    private Set<ConverterFieldMapping> sourceToDestinationFieldMappings;
 
-   private final List<PropertyDescriptorPair> conversionCandidatesOfSameType = new ArrayList<PropertyDescriptorPair>();
+   private final List<PropertyDescriptorPair> primitiveConversionCandidates = new ArrayList<PropertyDescriptorPair>();
 
-   private final List<PropertyDescriptorPair> conversionCandidatesOfDifferentType = new ArrayList<PropertyDescriptorPair>();
+   private final List<PropertyDescriptorPair> defaultConversionCandidates = new ArrayList<PropertyDescriptorPair>();
 
    private final List<PropertyDescriptorPair> collectionConversionCandidates = new ArrayList<PropertyDescriptorPair>();
 
-   private PropertyMapper sameTypePropertyMapper = new SameTypePropertyMapper();
+   private PropertyMapper primitivePropertyMapper = new PrimitivePropertyMapper();
 
-   private PropertyMapper differentTypePropertyMapper = new DifferentTypePropertyMapper();
+   private PropertyMapper defaultPropertyMapper = new DefaultPropertyMapper();
 
    private PropertyMapper collectionPropertyMapper = new CollectionPropertyMapper();
+
+   private final Set<Exclusions> validExclusions = new HashSet<Exclusions>();
    
-  
 
    /**
     * Creates an instance of the destination object reflectively. Override this
@@ -68,7 +69,8 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
       }
       catch (InstantiationException e) {
          throw new ConversionException("Could not instantiate new instance of " + getDestinationObjectClass()
-               + ". Ensure there is a no arg constructor available.", e);
+               + " when trying to convert from " + sourceObject.getClass() + ". Ensure there is a no arg constructor " +
+               "available or create an explicit converter for this source > destination combination.", e);
       }
       catch (IllegalAccessException e) {
          throw new ConversionException("Could not instantiate new instance of " + getDestinationObjectClass(), e);
@@ -101,7 +103,12 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
       Collections.addAll(explicitExclusions.getSet(), DEFAULT_PROPERTIES_TO_IGNORE);
       explicitExclusions.getSet().addAll(exclusions.getSet());
 
-      validatePropertiesToIgnore(destinationObject, exclusions);
+      if(!validExclusions.contains(exclusions)) {
+         validatePropertiesToIgnore(destinationObject, exclusions);
+         validExclusions.add(exclusions);
+      }
+
+
 
       final Set<String> fullIgnoreSet = new HashSet<String>();
       fullIgnoreSet.addAll(explicitExclusions.getSet());
@@ -111,9 +118,9 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
          final PropertyAccessor sourcePropertyAccessor = new FallbackPropertyAccessor(sourceObject);
          final PropertyAccessor destinationPropertyAccessor = new FallbackPropertyAccessor(destinationObject);
 
-         sameTypePropertyMapper.mapProperties(conversionCandidatesOfSameType, explicitExclusions,
+         primitivePropertyMapper.mapProperties(primitiveConversionCandidates, explicitExclusions,
                sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
-         differentTypePropertyMapper.mapProperties(conversionCandidatesOfDifferentType, explicitExclusions,
+         defaultPropertyMapper.mapProperties(defaultConversionCandidates, explicitExclusions,
                sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
          collectionPropertyMapper.mapProperties(collectionConversionCandidates, explicitExclusions,
                sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
@@ -209,15 +216,21 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
       final PropertyAccessor beanPropertyAccessor = new DirectFieldAccessor(destinationObject);
       final List<String> invalidProperties = new ArrayList<String>();
+
+
       for (String property : exclusions.getSet()) {
+
          String localProperty = property;
-         if (property.indexOf(".") > 0) {
-            localProperty = property.substring(0, property.indexOf("."));
+
+         int indexOfPropertyDelimiter = property.indexOf(".");
+
+         if (indexOfPropertyDelimiter > 0) {
+            localProperty = property.substring(0, indexOfPropertyDelimiter);
          }
 
-         if (!PROPERTY_EXCLUSION_WILDCARD_CHARACTER.equals(localProperty) 
+         if (!PROPERTY_EXCLUSION_WILDCARD_CHARACTER.equals(localProperty)
                && !beanPropertyAccessor.isWritableProperty(localProperty)) {
-            
+
                invalidProperties.add(destinationObject.getClass() + "#" + localProperty);
          }
       }
@@ -259,17 +272,24 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
          for (int i = 0; i < sourcePds.length; i++) {
 
             final String sourceName = sourcePds[i].getName();
-            final Class<?> sourceType = sourcePds[i].getPropertyType();
+            Class<?> sourceType = sourcePds[i].getPropertyType();
+            if(sourceType.isPrimitive()) {
+               sourceType = PrimitiveTypeUtils.getAutoboxedTypeForPrimitive(sourceType);
+            }
 
             for (int j = 0; j < destinationPds.length; j++) {
 
                final String destinationName = destinationPds[j].getName();
-               final Class<?> destinationType = destinationPds[j].getPropertyType();
+               Class<?> destinationType = destinationPds[j].getPropertyType();
+
+               if(destinationType.isPrimitive()) {
+                  destinationType = PrimitiveTypeUtils.getAutoboxedTypeForPrimitive(destinationType);
+               }
 
                if (shouldMapFieldNames(sourceName, destinationName) 
                      && isSupportedCollection(sourceType)
                      && isSupportedCollection(destinationType)
-                     && !CollectionUtils.hasSameGenericCollectionType(sourcePds[i], destinationPds[j])
+                     //&& !CollectionUtils.hasSameGenericCollectionType(sourcePds[i], destinationPds[j])
                      && writableDestinationFields.containsKey(destinationName)) {
 
                   final Class<?> genericDestinationCollectionType = GenericCollectionTypeResolver
@@ -280,15 +300,15 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
                }
                else if (shouldMapFieldNames(sourceName, destinationName) 
-                     && !sourceType.equals(destinationType)
+                     && !equalPrimitiveEquivilentTypes(sourceType, destinationType)
                      && writableDestinationFields.containsKey(destinationName)) {
 
                   if (objectAssembler.converterExists(sourceType, destinationType)) {
-                     conversionCandidatesOfDifferentType.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                     defaultConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
                   }
                   else if( objectAssembler.isAutomapWhenNoConverterFound()) {
                      objectAssembler.registerConverter(new GenericConverter(objectAssembler, sourceType, destinationType));
-                     conversionCandidatesOfDifferentType.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                     defaultConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
                   }
                   else {
                      throw new ConversionException(sourceType, destinationType);
@@ -296,7 +316,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
                }
                else if (shouldMapFieldNames(sourceName, destinationName)
                      && writableDestinationFields.containsKey(destinationName)) {
-                  conversionCandidatesOfSameType.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                  primitiveConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
                }
             }
          }
@@ -305,7 +325,17 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
          initialised = true;
       }
 
+
    }
+
+   private boolean equalPrimitiveEquivilentTypes(Class sourceType, Class destinationType) {
+      if(sourceType.equals(destinationType) && PrimitiveTypeUtils.isPrimitiveEquivilent(sourceType)) {
+         return true;
+      }
+      return false;
+   }
+
+
 
    private boolean shouldMapFieldNames(final String sourceName, final String destinationName) {
 

@@ -50,7 +50,7 @@ public class CglibUtils {
 	/**
 	 * Attempts to resolve a potentially proxied target class
 	 * 
-	 * @param objectOne
+	 * @param Object object
 	 * 
 	 * @return
 	 * @throws ClassNotFoundException
