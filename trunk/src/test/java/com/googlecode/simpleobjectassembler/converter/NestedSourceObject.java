@@ -1,5 +1,8 @@
 package com.googlecode.simpleobjectassembler.converter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NestedSourceObject {
 
    private String string;
@@ -7,6 +10,8 @@ public class NestedSourceObject {
    private String otherString;
    
    private SourceObject parent;
+
+   private List<NestedSourceObject> nested = new ArrayList<NestedSourceObject>();
 
    public NestedSourceObject(String string) {
       super();
@@ -39,4 +44,15 @@ public class NestedSourceObject {
       this.parent = parent;
    }
 
+   public List<NestedSourceObject> getNested() {
+      return nested;
+   }
+
+   public void setNested(List<NestedSourceObject> nested) {
+      this.nested = nested;
+   }
+
+   public void addNested(NestedSourceObject nested) {
+      this.nested.add(nested);
+   }
 }

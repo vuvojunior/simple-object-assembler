@@ -88,7 +88,7 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
       }
 
 
-      ObjectConverter objectConverter = converterRegistry.getConverter(sourceObject, destinationClass);
+      ObjectConverter objectConverter = converterRegistry.getConverter(sourceClass, destinationClass);
 
       if (objectConverter == null && automapWhenNoConverterFound) {
          objectConverter = new GenericConverter((CachingObjectAssembler) this, sourceClass, destinationClass);
@@ -151,8 +151,10 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
 
 
       try {
-         final ObjectConverter objectConverter = converterRegistry.getConverter(sourceObject, CglibUtils
-               .resolveTargetClassIfProxied(destinationObject));
+         final ObjectConverter objectConverter = converterRegistry.getConverter(
+               CglibUtils.resolveTargetClassIfProxied(sourceObject),
+               CglibUtils.resolveTargetClassIfProxied(destinationObject));
+
          return (T) objectConverter.convert(sourceObject, destinationObject, conversionCache, exclusions);
       }
       catch (ClassNotFoundException e) {
@@ -171,8 +173,8 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
       return this.converterRegistry.converterExists(sourceClass, destinationClass);
    }
 
-   public ObjectConverter<?, ?> getConverter(Object sourceObject, Class<?> destinationClass) {
-      return this.converterRegistry.getConverter(sourceObject, destinationClass);
+   public ObjectConverter<?, ?> getConverter(Class<?> sourceClass, Class<?> destinationClass) {
+      return this.converterRegistry.getConverter(sourceClass, destinationClass);
    }
 
    public boolean isAutomapWhenNoConverterFound() {

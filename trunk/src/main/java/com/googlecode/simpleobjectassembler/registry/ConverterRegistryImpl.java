@@ -18,20 +18,21 @@ public class ConverterRegistryImpl implements ConverterRegistry {
       // default
    }
 
-   public ObjectConverter<?, ?> getConverter(final Object sourceObject, final Class<?> destinationClass) {
+   public ObjectConverter<?, ?> getConverter(final Class<?> sourceClass, final Class<?> destinationClass) {
 
+      /*
       Class<?> sourceObjectClass;
       try {
          sourceObjectClass = CglibUtils.resolveTargetClassIfProxied(sourceObject);
       } catch (ClassNotFoundException e) {
          throw new ConversionException("Can't find class for source object: " + sourceObject.getClass().getName(), e);
       }
-
-      return lookupConverterUsingSourceObjectHierarchy(sourceObjectClass, sourceObjectClass, destinationClass);
+*/
+      return lookupConverterUsingSourceObjectHierarchy(sourceClass, destinationClass);
 
    }
 
-   private ObjectConverter<?, ?> lookupConverterUsingSourceObjectHierarchy(Class<?> sourceObjectClass, Class<?> sourceObjectOrSuperClass,
+   private ObjectConverter<?, ?> lookupConverterUsingSourceObjectHierarchy(Class<?> sourceObjectOrSuperClass,
          final Class<?> destinationClass) {
 
       final ConverterMappingKey converterMappingKey = new TypeBasedTransformerMappingKey(sourceObjectOrSuperClass, destinationClass);
@@ -42,7 +43,7 @@ public class ConverterRegistryImpl implements ConverterRegistry {
          return null;
       }
 
-      return lookupConverterUsingSourceObjectHierarchy(sourceObjectClass, sourceObjectOrSuperClass.getSuperclass(), destinationClass);
+      return lookupConverterUsingSourceObjectHierarchy(sourceObjectOrSuperClass.getSuperclass(), destinationClass);
 
    }
 
@@ -61,7 +62,7 @@ public class ConverterRegistryImpl implements ConverterRegistry {
    }
 
    public boolean converterExists(Class<?> sourceClass, Class<?> destinationClass) {
-      return lookupConverterUsingSourceObjectHierarchy(sourceClass, sourceClass, destinationClass) != null;
+      return lookupConverterUsingSourceObjectHierarchy(sourceClass, destinationClass) != null;
    }
 
 }
