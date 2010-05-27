@@ -1,4 +1,4 @@
-0.5.0 (current)
+0.5.0 (2010-05-27)
     * A number of performance fixes. Some siginificant when operating on large object graphs / numbers of properties
     * Added fix for converting between primitives and their autoboxed types
     * Upgraded to require Spring 3.x
