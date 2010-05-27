@@ -13,11 +13,11 @@ public interface ConverterRegistry {
 	/**
 	 * Get a converter from the registry
 	 * 
-	 * @param sourceObject
+	 * @param sourceClass
 	 * @param destinationClass
 	 * @return
 	 */
-	ObjectConverter<?, ?> getConverter(final Object sourceObject,
+	ObjectConverter<?, ?> getConverter(final Class<?> sourceClass,
 			final Class<?> destinationClass);
 
 	/**

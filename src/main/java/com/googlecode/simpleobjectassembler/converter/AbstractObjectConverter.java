@@ -99,6 +99,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
       }
 
       initialiseFieldMappingIfRequired();
+
       final Exclusions explicitExclusions = alwaysExcludeProperties();
       Collections.addAll(explicitExclusions.getSet(), DEFAULT_PROPERTIES_TO_IGNORE);
       explicitExclusions.getSet().addAll(exclusions.getSet());
@@ -120,8 +121,10 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
          primitivePropertyMapper.mapProperties(primitiveConversionCandidates, explicitExclusions,
                sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
+
          defaultPropertyMapper.mapProperties(defaultConversionCandidates, explicitExclusions,
                sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
+
          collectionPropertyMapper.mapProperties(collectionConversionCandidates, explicitExclusions,
                sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
 
