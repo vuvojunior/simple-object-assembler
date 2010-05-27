@@ -10,7 +10,7 @@ Next add the following dependency to your project - obviously double check that 
 <dependency>
    <groupId>com.googlecode</groupId>
    <artifactId>simpleobjectassembler</artifactId>
-   <version>0.4.3-SNAPSHOT</version>
+   <version>0.5.0</version>
 </dependency> 
 }}}
 
