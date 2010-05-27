@@ -1,9 +1,11 @@
 0.5.0 (current)
+    * A number of performance fixes. Some siginificant when operating on large object graphs / numbers of properties
     * Added fix for converting between primitives and their autoboxed types
     * Upgraded to require Spring 3.x
     * Changed the way  objects of same type are converted so that they are actually converted not just passed as a reference
     * Now more explicit about the way primitives and their autoboxed equivilents are mapped
     * Dramatically reduced the number of times generic converters are created by registering them on first creation with the converter registry
+
 
 0.4.7
 
