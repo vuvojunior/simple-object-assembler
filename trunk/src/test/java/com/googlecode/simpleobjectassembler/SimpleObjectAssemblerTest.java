@@ -172,8 +172,8 @@ public class SimpleObjectAssemblerTest {
       Assert.assertEquals(OTHER_STRING, destinationObject.getNestedObjectList().get(1).getOtherString());
 
    }
-   
-  
+
+
    public void shouldMapValuesInNestedOrderedCollectionOfDifferentCollectionTypes() {
 
       // reset with different assembler and converters - mainly the
@@ -301,10 +301,10 @@ public class SimpleObjectAssemblerTest {
 
    @Test
    public void testTypeConverterTypeInference() {
-      Assert.assertEquals(SourceObject.class, GenericTypeResolver.getParameterizedTypeByName("SourceObjectClass",
+      Assert.assertEquals(SourceObject.class, GenericTypeResolver.getParameterizedTypeByName("Source",
             DestinationObjectProvidingObjectConverter.class));
       Assert.assertEquals(DestinationObject.class, GenericTypeResolver.getParameterizedTypeByName(
-            "DestinationObjectClass", DestinationObjectProvidingObjectConverter.class));
+            "Destination", DestinationObjectProvidingObjectConverter.class));
    }
 
    @Test
@@ -358,7 +358,7 @@ public class SimpleObjectAssemblerTest {
       assertThat(dto.getName(), is(stubEntity.getName()));
 
    }
-   
+
    @Test
    public void shouldNotCallEntityDaoToFindEntityWhenNoConverterProvidedAndDtoHasNullId() {
 
@@ -413,16 +413,16 @@ public class SimpleObjectAssemblerTest {
 
       objectAssembler = new SimpleObjectAssembler();
       objectAssembler.setAutomapWhenNoConverterFound(true);
-      
+
       ObjectWithSetterForAugmentedGetter destination = objectAssembler.assemble(source,
             ObjectWithSetterForAugmentedGetter.class);
-      
+
       assertEquals(source.getAugmentedString(), destination.getAugmentedString());
       assertEquals(Integer.valueOf(source.getNumber()), destination.getNumber());
       assertEquals("string", destination.getList().get(0));
-      
+
    }
-   
+
    @Test
    public void shouldMapToDestinationPropertyWithoutSetter() {
 
@@ -430,20 +430,20 @@ public class SimpleObjectAssemblerTest {
 
       objectAssembler = new SimpleObjectAssembler();
       objectAssembler.setAutomapWhenNoConverterFound(true);
-      
+
       DestinationObjectWithNoSetterForProperty destination = objectAssembler.assemble(source,
             DestinationObjectWithNoSetterForProperty.class);
-      
+
       assertEquals("string", destination.getPropertyWithoutSetter());
-      
+
    }
-   
+
    @Test
    public void shouldConvertDateToCalendar() {
       DateToCalendarConverter converter = new DateToCalendarConverter();
       converter.setObjectAssembler(objectAssembler);
       converter.postConstruct();
-      
+
       assertNotNull(objectAssembler.assemble(new Date(), Calendar.class));
    }
 
@@ -471,7 +471,7 @@ public class SimpleObjectAssemblerTest {
 
    }
 
-   
+
    public class DateToCalendarConverter extends AbstractObjectConverter<Date, Calendar> {
 
       @Override
@@ -486,7 +486,7 @@ public class SimpleObjectAssemblerTest {
          return true;
       }
    }
-   
+
 
    private SourceObject createFullyPopulatedSourceObject() {
       final SourceObject sourceObject = new SourceObject();
@@ -495,16 +495,16 @@ public class SimpleObjectAssemblerTest {
       sourceObject.setNestedObject(createFullyPopulatedNestedSourceObject("string1"));
       sourceObject
             .setNestedObjectDifferentNameSource(createFullyPopulatedNestedSourceObject("nestedObjectDifferentName"));
-      
+
       final List<NestedSourceObject> list = new ArrayList<NestedSourceObject>();
       list.add(createFullyPopulatedNestedSourceObject("string2"));
       list.add(createFullyPopulatedNestedSourceObject("string3"));
       sourceObject.setNestedObjectList(list);
-      
+
       final Set<NestedSourceObject> set = new LinkedHashSet<NestedSourceObject>();
       set.add(createFullyPopulatedNestedSourceObject("string4"));
       set.add(createFullyPopulatedNestedSourceObject("string5"));
-      
+
       sourceObject.setNestedObjectCollection(set);
       sourceObject.setNestedObjectListDifferentNameSource(list);
       sourceObject.setNestedObjectSet(Collections.singleton(createFullyPopulatedNestedSourceObject("string4")));

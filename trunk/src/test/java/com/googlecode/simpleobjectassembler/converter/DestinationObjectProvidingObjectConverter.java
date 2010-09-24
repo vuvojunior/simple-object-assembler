@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.googlecode.simpleobjectassembler.converter.AbstractObjectConverter;
-
 public class DestinationObjectProvidingObjectConverter extends AbstractObjectConverter<SourceObject, DestinationObject> {
 
    
@@ -36,11 +34,11 @@ public class DestinationObjectProvidingObjectConverter extends AbstractObjectCon
       return destinationObject;
    }
   /* 
-   public Class<DestinationObject> getDestinationObjectClass() {
+   public Class<DestinationObject> getDestinationClass() {
       return DestinationObject.class;
    }
 
-   public Class<SourceObject> getSourceObjectClass() {
+   public Class<SourceObject> getSourceClass() {
       return SourceObject.class;
    }
 */

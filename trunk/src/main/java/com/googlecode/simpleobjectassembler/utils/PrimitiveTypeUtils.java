@@ -18,6 +18,11 @@ public class PrimitiveTypeUtils {
     */
    private static Set<Class> autoboxedPrimitiveTypes = new HashSet<Class>();
 
+
+   private PrimitiveTypeUtils() {
+      //prevent instantiation
+   }
+
    static {
       primitiveToObjectTypeMap.put(byte.class, Byte.class);
       primitiveToObjectTypeMap.put(short.class, Short.class);

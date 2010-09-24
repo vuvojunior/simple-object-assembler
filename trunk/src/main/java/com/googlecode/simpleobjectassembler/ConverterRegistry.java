@@ -3,7 +3,7 @@ package com.googlecode.simpleobjectassembler;
 import com.googlecode.simpleobjectassembler.converter.ObjectConverter;
 
 /**
- * Converter registry
+ * Registry of converters mapped against source and destination class pairs
  * 
  * @author robmonie
  * 
@@ -11,14 +11,14 @@ import com.googlecode.simpleobjectassembler.converter.ObjectConverter;
 public interface ConverterRegistry {
 
 	/**
-	 * Get a converter from the registry
+	 * Get a converter from the registry based on it's source and destination class combinations
 	 * 
 	 * @param sourceClass
 	 * @param destinationClass
 	 * @return
 	 */
-	ObjectConverter<?, ?> getConverter(final Class<?> sourceClass,
-			final Class<?> destinationClass);
+	ObjectConverter<?, ?> getConverter(final Class<?> sourceClass, final Class<?> destinationClass);
+
 
 	/**
 	 * Register a converter in the registry. Typically converters are registered
@@ -27,6 +27,7 @@ public interface ConverterRegistry {
 	 * @param converter
 	 */
 	void registerConverter(ObjectConverter<?, ?> converter);
+
 
 	/**
 	 * Check if a converter exists in the registry

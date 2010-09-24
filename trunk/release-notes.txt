@@ -1,5 +1,5 @@
 0.5.0 (2010-05-27)
-    * A number of performance fixes. Some siginificant when operating on large object graphs / numbers of properties
+    * A number of performance fixes. Some siginificant when operating on large object graphs with very large numbers of properties 
     * Added fix for converting between primitives and their autoboxed types
     * Upgraded to require Spring 3.x
     * Changed the way  objects of same type are converted so that they are actually converted not just passed as a reference

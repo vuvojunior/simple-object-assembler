@@ -20,12 +20,12 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObjectClass> implements
-      ObjectConverter<SourceObjectClass, DestinationObjectClass> {
+public abstract class AbstractObjectConverter<Source, Destination> implements
+      ObjectConverter<Source, Destination> {
 
-   private static final String DESTINATION_OBJECT_CLASS_PARAM_TYPE_NAME = "DestinationObjectClass";
+   private static final String DESTINATION_OBJECT_CLASS_PARAM_TYPE_NAME = "Destination";
 
-   private static final String SOURCE_OBJECT_CLASS_PARAM_TYPE_NAME = "SourceObjectClass";
+   private static final String SOURCE_OBJECT_CLASS_PARAM_TYPE_NAME = "Source";
 
    private static final String[] DEFAULT_PROPERTIES_TO_IGNORE = new String[] { "class" };
 
@@ -50,49 +50,57 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    private PropertyMapper collectionPropertyMapper = new CollectionPropertyMapper();
 
    private final Set<Exclusions> validExclusions = new HashSet<Exclusions>();
-   
+
 
    /**
     * Creates an instance of the destination object reflectively. Override this
-    * method if special object construction is required. The sourceObject passed
+    * method if special object construction is required. The source passed
     * into this method is guaranteed not to be null to save redundant null
-    * checking of the sourceObject.
-    * 
-    * @param sourceObject
-    * 
+    * checking of the source.
+    *
+    * @param source
+    *
     * @return destinationObject
     */
-   public DestinationObjectClass createDestinationObject(SourceObjectClass sourceObject) {
+   public Destination createDestinationObject(Source source) {
 
       try {
-         return getDestinationObjectClass().newInstance();
+         return getDestinationClass().newInstance();
       }
       catch (InstantiationException e) {
-         throw new ConversionException("Could not instantiate new instance of " + getDestinationObjectClass()
-               + " when trying to convert from " + sourceObject.getClass() + ". Ensure there is a no arg constructor " +
-               "available or create an explicit converter for this source > destination combination.", e);
+         throw new ConversionException("Could not instantiate new instance of " +
+               getDestinationClass() + " when trying to convert from " +
+               source.getClass() + ". Ensure there is a no arg constructor " +
+               "available or create an explicit converter for this source to destination combination.", e);
       }
       catch (IllegalAccessException e) {
-         throw new ConversionException("Could not instantiate new instance of " + getDestinationObjectClass(), e);
+         throw new ConversionException("Could not instantiate new instance of " + getDestinationClass(), e);
       }
    }
 
-   public final DestinationObjectClass convert(SourceObjectClass sourceObject, ConversionCache conversionCache,
-         Exclusions exclusions) {
 
-      return convert(sourceObject, createDestinationObject(sourceObject), conversionCache, exclusions);
+
+   public final Destination convert(Source source,
+                                               ConversionCache conversionCache,
+                                               Exclusions exclusions) {
+
+      return convert(source, createDestinationObject(source), conversionCache, exclusions);
 
    }
 
-   public final DestinationObjectClass convert(SourceObjectClass sourceObject,
-         DestinationObjectClass destinationObject, ConversionCache conversionCache, Exclusions exclusions) {
 
-      final DestinationObjectClass previouslyConvertedDestinationObject = (DestinationObjectClass) conversionCache
-            .getConvertedObjectBySourceObjectAndDestinationType(sourceObject, getDestinationObjectClass());
+
+   public final Destination convert(Source source,
+                                               Destination destination,
+                                               ConversionCache conversionCache,
+                                               Exclusions exclusions) {
+
+      final Destination previouslyConvertedDestinationObject = (Destination) conversionCache
+            .getConvertedObjectBySourceObjectAndDestinationType(source, getDestinationClass());
 
       if (previouslyConvertedDestinationObject == null) {
-         conversionCache.cacheConvertedObjectBySourceObject(sourceObject, destinationObject,
-               getDestinationObjectClass());
+         conversionCache.cacheConvertedObjectBySourceObject(source, destination,
+               getDestinationClass());
       }
       else {
          return previouslyConvertedDestinationObject;
@@ -105,7 +113,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
       explicitExclusions.getSet().addAll(exclusions.getSet());
 
       if(!validExclusions.contains(exclusions)) {
-         validatePropertiesToIgnore(destinationObject, exclusions);
+         validatePropertiesToIgnore(destination, exclusions);
          validExclusions.add(exclusions);
       }
 
@@ -116,8 +124,8 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
       if (!disableAutoMapping() && !fullIgnoreSet.contains(PROPERTY_EXCLUSION_WILDCARD_CHARACTER)) {
 
-         final PropertyAccessor sourcePropertyAccessor = new FallbackPropertyAccessor(sourceObject);
-         final PropertyAccessor destinationPropertyAccessor = new FallbackPropertyAccessor(destinationObject);
+         final PropertyAccessor sourcePropertyAccessor = new FallbackPropertyAccessor(source);
+         final PropertyAccessor destinationPropertyAccessor = new FallbackPropertyAccessor(destination);
 
          primitivePropertyMapper.mapProperties(primitiveConversionCandidates, explicitExclusions,
                sourcePropertyAccessor, destinationPropertyAccessor, conversionCache, objectAssembler);
@@ -132,10 +140,10 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
       if (!fullIgnoreSet.contains(PROPERTY_EXCLUSION_WILDCARD_CHARACTER)) {
          // call user defined conversions.
-         convert(sourceObject, destinationObject);
+         convert(source, destination);
       }
-         
-      return destinationObject;
+
+      return destination;
 
    }
 
@@ -143,19 +151,18 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
     * Override to provide any custom conversion logic required for the
     * converter. Default implementation does nothing. Override if there is
     * special conversion logic required by
-    * 
-    * @param sourceObject
-    * @param destinationObject
+    *
+    * @param source
+    * @param destination
     * @return
     */
-   public void convert(SourceObjectClass sourceObject, DestinationObjectClass destinationObject) {
+   public void convert(Source source, Destination destination) {
       //Override to implement explicit custom coversion logic
    }
 
    /**
-    * Return the main object assembler
-    * 
-    * @return
+    *
+    * @return the object assembler this converter is bound to
     */
    public ObjectAssembler getObjectAssembler() {
       return objectAssembler;
@@ -164,7 +171,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    /**
     * Runs post construction to inject the converter back into the assembler for
     * use at runtime.
-    * 
+    *
     */
    @PostConstruct
    public void postConstruct() {
@@ -180,7 +187,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    /**
     * Override to define any custom field mappings that should be applied where
     * the source and destination field names do not match
-    * 
+    *
     * @return
     */
    protected Set<ConverterFieldMapping> customConverterFieldMappings() {
@@ -190,7 +197,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    /**
     * Override and return true if a particular converter should disable auto
     * field mapping. Default value is false
-    * 
+    *
     * @return
     */
    protected boolean disableAutoMapping() {
@@ -201,7 +208,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
     * Specify properties that should always be ignored during mapping with this
     * converted. The runtime ignore set is added to this before any property
     * mapping is carried out
-    * 
+    *
     * @return
     */
    protected Exclusions alwaysExcludeProperties() {
@@ -211,13 +218,13 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    /**
     * Validates that the properties in the ignore list are actually valid
     * fields.
-    * 
-    * @param destinationObject
+    *
+    * @param destination
     * @param exclusions
     */
-   private void validatePropertiesToIgnore(DestinationObjectClass destinationObject, Exclusions exclusions) {
+   private void validatePropertiesToIgnore(Destination destination, Exclusions exclusions) {
 
-      final PropertyAccessor beanPropertyAccessor = new DirectFieldAccessor(destinationObject);
+      final PropertyAccessor beanPropertyAccessor = new DirectFieldAccessor(destination);
       final List<String> invalidProperties = new ArrayList<String>();
 
 
@@ -234,7 +241,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
          if (!PROPERTY_EXCLUSION_WILDCARD_CHARACTER.equals(localProperty)
                && !beanPropertyAccessor.isWritableProperty(localProperty)) {
 
-               invalidProperties.add(destinationObject.getClass() + "#" + localProperty);
+               invalidProperties.add(destination.getClass() + "#" + localProperty);
          }
       }
 
@@ -253,7 +260,7 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
     * based on other registered converters. This must execute after all
     * converters are registered which is why it's not run on bean
     * initialisation. Results are cached so that it's only run once.
-    * 
+    *
     * @throws NoSuchFieldException
     * @throws SecurityException
     */
@@ -261,71 +268,78 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
 
       if (!initialised && !disableAutoMapping()) {
 
-         final PropertyDescriptor[] sourcePds = BeanUtils.getPropertyDescriptors(getSourceObjectClass());
-         final PropertyDescriptor[] destinationPds = BeanUtils.getPropertyDescriptors(getDestinationObjectClass());
-         final Map<String, Field> writableDestinationFields = new HashMap<String, Field>();
+         synchronized (this) {
 
-         ReflectionUtils.doWithFields(getDestinationObjectClass(), new ReflectionUtils.FieldCallback() {
-
-            public void doWith(Field field) {
-               writableDestinationFields.put(field.getName(), field);
-            }
-         }, ReflectionUtils.COPYABLE_FIELDS);
-
-         for (int i = 0; i < sourcePds.length; i++) {
-
-            final String sourceName = sourcePds[i].getName();
-            Class<?> sourceType = sourcePds[i].getPropertyType();
-            if(sourceType.isPrimitive()) {
-               sourceType = PrimitiveTypeUtils.getAutoboxedTypeForPrimitive(sourceType);
+            if(initialised) {
+               return;
             }
 
-            for (int j = 0; j < destinationPds.length; j++) {
+            final PropertyDescriptor[] sourcePds = BeanUtils.getPropertyDescriptors(getSourceClass());
+            final PropertyDescriptor[] destinationPds = BeanUtils.getPropertyDescriptors(getDestinationClass());
+            final Map<String, Field> writableDestinationFields = new HashMap<String, Field>();
 
-               final String destinationName = destinationPds[j].getName();
-               Class<?> destinationType = destinationPds[j].getPropertyType();
+            ReflectionUtils.doWithFields(getDestinationClass(), new ReflectionUtils.FieldCallback() {
 
-               if(destinationType.isPrimitive()) {
-                  destinationType = PrimitiveTypeUtils.getAutoboxedTypeForPrimitive(destinationType);
+               public void doWith(Field field) {
+                  writableDestinationFields.put(field.getName(), field);
+               }
+            }, ReflectionUtils.COPYABLE_FIELDS);
+
+            for (int i = 0; i < sourcePds.length; i++) {
+
+               final String sourceName = sourcePds[i].getName();
+               Class<?> sourceType = sourcePds[i].getPropertyType();
+               if(sourceType.isPrimitive()) {
+                  sourceType = PrimitiveTypeUtils.getAutoboxedTypeForPrimitive(sourceType);
                }
 
-               if (shouldMapFieldNames(sourceName, destinationName) 
-                     && isSupportedCollection(sourceType)
-                     && isSupportedCollection(destinationType)
-                     //&& !CollectionUtils.hasSameGenericCollectionType(sourcePds[i], destinationPds[j])
-                     && writableDestinationFields.containsKey(destinationName)) {
+               for (int j = 0; j < destinationPds.length; j++) {
 
-                  final Class<?> genericDestinationCollectionType = GenericCollectionTypeResolver
-                        .getCollectionReturnType(destinationPds[j].getReadMethod());
+                  final String destinationName = destinationPds[j].getName();
+                  Class<?> destinationType = destinationPds[j].getPropertyType();
 
-                  collectionConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j],
-                        genericDestinationCollectionType));
-
-               }
-               else if (shouldMapFieldNames(sourceName, destinationName) 
-                     && !equalPrimitiveEquivilentTypes(sourceType, destinationType)
-                     && writableDestinationFields.containsKey(destinationName)) {
-
-                  if (objectAssembler.converterExists(sourceType, destinationType)) {
-                     defaultConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                  if(destinationType.isPrimitive()) {
+                     destinationType = PrimitiveTypeUtils.getAutoboxedTypeForPrimitive(destinationType);
                   }
-                  else if( objectAssembler.isAutomapWhenNoConverterFound()) {
-                     objectAssembler.registerConverter(new GenericConverter(objectAssembler, sourceType, destinationType));
-                     defaultConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+
+                  if (shouldMapFieldNames(sourceName, destinationName)
+                        && isSupportedCollection(sourceType)
+                        && isSupportedCollection(destinationType)
+                        //&& !CollectionUtils.hasSameGenericCollectionType(sourcePds[i], destinationPds[j])
+                        && writableDestinationFields.containsKey(destinationName)) {
+
+                     final Class<?> genericDestinationCollectionType = GenericCollectionTypeResolver
+                           .getCollectionReturnType(destinationPds[j].getReadMethod());
+
+                     collectionConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j],
+                           genericDestinationCollectionType));
+
                   }
-                  else {
-                     throw new ConversionException(sourceType, destinationType);
+                  else if (shouldMapFieldNames(sourceName, destinationName)
+                        && !equalPrimitiveEquivilentTypes(sourceType, destinationType)
+                        && writableDestinationFields.containsKey(destinationName)) {
+
+                     if (objectAssembler.converterExists(sourceType, destinationType)) {
+                        defaultConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                     }
+                     else if( objectAssembler.isAutomapWhenNoConverterFound()) {
+                        objectAssembler.registerConverter(new GenericConverter(objectAssembler, sourceType, destinationType));
+                        defaultConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                     }
+                     else {
+                        throw new ConversionException(sourceType, destinationType);
+                     }
                   }
-               }
-               else if (shouldMapFieldNames(sourceName, destinationName)
-                     && writableDestinationFields.containsKey(destinationName)) {
-                  primitiveConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                  else if (shouldMapFieldNames(sourceName, destinationName)
+                        && writableDestinationFields.containsKey(destinationName)) {
+                     primitiveConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j]));
+                  }
                }
             }
+            // cache custom field mappings
+            this.sourceToDestinationFieldMappings = customConverterFieldMappings();
+            initialised = true;
          }
-         // cache custom field mappings
-         this.sourceToDestinationFieldMappings = customConverterFieldMappings();
-         initialised = true;
       }
 
 
@@ -362,20 +376,20 @@ public abstract class AbstractObjectConverter<SourceObjectClass, DestinationObje
    /**
     * Default implementation that infers the source object class from the
     * class's parameterized generic types
-    * 
-    * @see com.googlecode.simpleobjectassembler.converter.ObjectConverter#getSourceObjectClass()
+    *
+    * @see com.googlecode.simpleobjectassembler.converter.ObjectConverter#getSourceClass()
     */
-   public Class<SourceObjectClass> getSourceObjectClass() {
+   public Class<Source> getSourceClass() {
       return GenericTypeResolver.getParameterizedTypeByName(SOURCE_OBJECT_CLASS_PARAM_TYPE_NAME, this.getClass());
    }
 
    /**
     * Default implementation that infers the destination object class from the
     * class's parameterized generic types
-    * 
-    * @see com.googlecode.simpleobjectassembler.converter.ObjectConverter#getDestinationObjectClass()
+    *
+    * @see com.googlecode.simpleobjectassembler.converter.ObjectConverter#getDestinationClass()
     */
-   public Class<DestinationObjectClass> getDestinationObjectClass() {
+   public Class<Destination> getDestinationClass() {
       return GenericTypeResolver.getParameterizedTypeByName(DESTINATION_OBJECT_CLASS_PARAM_TYPE_NAME, this.getClass());
    }
 
