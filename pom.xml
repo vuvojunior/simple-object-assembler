@@ -4,19 +4,19 @@
    <groupId>com.googlecode</groupId>
    <artifactId>simpleobjectassembler</artifactId>
    <name>simpleobjectassembler</name>
-   <version>0.5.0</version>
+   <version>0.5.2-SNAPSHOT</version>
 
    <distributionManagement>
-    <repository>
-        <id>maven.dev.renewtek.com</id>
-        <name>maven.dev.renewtek.com-releases</name>
-        <url>http://maven.dev.renewtek.com/artifactory/libs-releases-local</url>
-    </repository>
-    <snapshotRepository>
-        <id>maven.dev.renewtek.com</id>
-        <name>maven.dev.renewtek.com-snapshots</name>
-        <url>http://maven.dev.renewtek.com/artifactory/libs-snapshots-local</url>
-    </snapshotRepository>  
+      <repository>
+         <id>maven.dev.renewtek.com</id>
+         <name>maven.dev.renewtek.com-releases</name>
+         <url>http://maven.dev.renewtek.com/artifactory/libs-releases-local</url>
+      </repository>
+      <snapshotRepository>
+         <id>maven.dev.renewtek.com</id>
+         <name>maven.dev.renewtek.com-snapshots</name>
+         <url>http://maven.dev.renewtek.com/artifactory/libs-snapshots-local</url>
+      </snapshotRepository>
    </distributionManagement>
 
    <build>
@@ -49,7 +49,7 @@
                <targetJdk>1.5</targetJdk>
             </configuration>
          </plugin>
-         
+
          <plugin>
             <artifactId>maven-eclipse-plugin</artifactId>
             <configuration>
@@ -59,23 +59,22 @@
             </configuration>
          </plugin>
          <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-source-plugin</artifactId>
-                 <version>2.1.2</version>
-                 <executions>
-                   <execution>
-                     <id>attach-sources</id>
-                     <phase>verify</phase>
-                     <goals>
-                       <goal>jar-no-fork</goal>
-                     </goals>
-                   </execution>
-                 </executions>
-               </plugin>
-         
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>2.1.2</version>
+            <executions>
+               <execution>
+                  <id>attach-sources</id>
+                  <phase>verify</phase>
+                  <goals>
+                     <goal>jar-no-fork</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
       </plugins>
    </build>
-
 
 
    <properties>
@@ -83,7 +82,7 @@
       <springVersion>3.0.2.RELEASE</springVersion>
       <springSecurityVersion>3.0.2.RELEASE</springSecurityVersion>
    </properties>
-   
+
    <dependencies>
       <dependency>
          <groupId>javax.annotation</groupId>
@@ -98,13 +97,13 @@
          <scope>provided</scope>
       </dependency>
 
-       <dependency>
+      <dependency>
          <groupId>org.springframework</groupId>
          <artifactId>spring-beans</artifactId>
          <version>${springVersion}</version>
          <scope>provided</scope>
       </dependency>
-      
+
       <dependency>
          <groupId>org.springframework</groupId>
          <artifactId>spring-orm</artifactId>
@@ -119,7 +118,7 @@
          <scope>provided</scope>
       </dependency>
 
-<!--
+      <!--
       <dependency>
          <groupId>org.springframework</groupId>
          <artifactId>spring</artifactId>

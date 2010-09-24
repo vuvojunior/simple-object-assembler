@@ -50,7 +50,7 @@ public class CglibUtils {
 	/**
 	 * Attempts to resolve a potentially proxied target class
 	 * 
-	 * @param Object object
+	 * @param object
 	 * 
 	 * @return
 	 * @throws ClassNotFoundException
@@ -81,22 +81,23 @@ public class CglibUtils {
 
 			} else if (clazz.equals(Object.class)
 					|| object.getClass().getName().indexOf("$$") >= 0) {
+            
 				final String className = object.getClass().getName();
 
 				// TODO - this way of figuring out interfaces proxied can
 				// possibly be made more robust although unsure of how to
 				// get to the specific interface proxied. Would be better to
 				// actually get to the target object if possible ??
-				clazz = Class.forName(className.substring(0, className
-						.indexOf("$$")));
-				if (clazz.equals(HibernateProxy.class)) {
-					clazz = ((HibernateProxy) object)
-							.getHibernateLazyInitializer().getImplementation()
-							.getClass();
+				clazz = Class.forName(className.substring(0, className.indexOf("$$")));
+
+            if (clazz.equals(HibernateProxy.class)) {
+					clazz = ((HibernateProxy) object).getHibernateLazyInitializer().getImplementation().getClass();
 				}
 
 			}
+
 			return clazz;
+
 		} else {
 			return object.getClass();
 		}

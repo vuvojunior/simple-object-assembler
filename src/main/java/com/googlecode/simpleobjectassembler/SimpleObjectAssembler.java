@@ -27,7 +27,7 @@ import java.util.Iterator;
  * are registered on app startup.
  */
 
-public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAssembler {
+public class SimpleObjectAssembler implements CachingObjectAssembler {
 
    private static final Log LOG = LogFactory.getLog(SimpleObjectAssembler.class);
 
@@ -128,25 +128,12 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
       }
 
       if (CollectionUtils.isOrderedCollection(sourceObject) && CollectionUtils.isOrderedCollection(destinationObject)) {
-         final Class destinationCollectionType = GenericCollectionTypeResolver.getCollectionType(((Collection)destinationObject).getClass());
-         if (destinationCollectionType == null) {
-            throw new ConversionException(new StringBuilder()
-                  .append("You have attempted to convert between generic collections where the destination collection ")
-                  .append("has lost it's generic type information due to erasure. It is possible to map to an instance of a generic collection using ")
-                  .append("an anonymous class that contains the type information. For example instead of passing 'new ArrayList<Destination>()' ")
-                  .append("as the destination object, pass 'new ArrayList<DestinationObject>() {} which creates an instance of an anonymous class ")
-                  .append("while also preserving the generic type information.").toString());
-         }
 
 
-         final Collection destinationCollection = (Collection) destinationObject;
          final Collection sourceCollection = (Collection) sourceObject;
+         final Collection destinationCollection = (Collection) destinationObject;
 
-         for (Iterator it = sourceCollection.iterator(); it.hasNext();) {
-            destinationCollection.add(assemble(it.next(), destinationCollectionType, exclusions));
-         }
-
-         return (T) destinationCollection;
+         return (T) assembleCollection(sourceCollection, destinationCollection, exclusions);
       }
 
 
@@ -162,6 +149,27 @@ public class SimpleObjectAssembler implements ObjectAssembler, CachingObjectAsse
          LOG.error(e.getMessage());
          throw new ConversionException("Could not load class", e);
       }
+   }
+
+   private <T extends Collection> T assembleCollection(Collection sourceCollection, T destinationCollection, Exclusions exclusions) {
+      final Class destinationCollectionType = GenericCollectionTypeResolver.getCollectionType((destinationCollection).getClass());
+
+      if (destinationCollectionType == null) {
+         throw new ConversionException(new StringBuilder()
+               .append("You have attempted to convert between generic collections where the destination collection ")
+               .append("has lost it's generic type information due to erasure. It is possible to map to an instance of a generic collection using ")
+               .append("an anonymous class that contains the type information. For example instead of passing 'new ArrayList<Destination>()' ")
+               .append("as the destination object, pass 'new ArrayList<DestinationObject>() {} which creates an instance of an anonymous class ")
+               .append("while also preserving the generic type information.")
+               .toString());
+      }
+
+
+      for (Iterator it = sourceCollection.iterator(); it.hasNext();) {
+         destinationCollection.add(assemble(it.next(), destinationCollectionType, exclusions));
+      }
+
+      return (T) destinationCollection;
    }
 
    public void registerConverter(ObjectConverter<?, ?> objectConverter) {

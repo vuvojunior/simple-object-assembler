@@ -31,9 +31,9 @@ public class GenericConverter extends AbstractObjectConverter<Object, Object> {
 
       if (entityDao != null) {
 
-         final Entity entityAnnotation = (Entity) AnnotationUtils.findAnnotation(getDestinationObjectClass(),
+         final Entity entityAnnotation = (Entity) AnnotationUtils.findAnnotation(getDestinationClass(),
                Entity.class);
-         final EntityDto dtoAnnotation = (EntityDto) AnnotationUtils.findAnnotation(getSourceObjectClass(),
+         final EntityDto dtoAnnotation = (EntityDto) AnnotationUtils.findAnnotation(getSourceClass(),
                EntityDto.class);
 
          if (entityAnnotation != null && dtoAnnotation != null) {
@@ -41,17 +41,17 @@ public class GenericConverter extends AbstractObjectConverter<Object, Object> {
             final Long destinationObjectId = (Long) propertyAccessor.getPropertyValue(dtoAnnotation.id());
             
             if(destinationObjectId != null) {
-               return  entityDao.findById(getDestinationObjectClass(), destinationObjectId);
+               return  entityDao.findById(getDestinationClass(), destinationObjectId);
             }
          } else if (entityAnnotation != null && dtoAnnotation == null) {
                throw new ConversionException(
                      "Attempt to automatically convert an instance of "
-                           + getSourceObjectClass()
+                           + getSourceClass()
                            + " to Entity of type "
-                           + getDestinationObjectClass()
+                           + getDestinationClass()
                            + " failed because the source object is not annotated with the EntityDto annotation."
                            + " Without this, the identifier for retrieving an instance of the destination "
-                           + "entity cannot be resolved. Please annotate " + getSourceObjectClass()
+                           + "entity cannot be resolved. Please annotate " + getSourceClass()
                            + " with the EntityDto annotation or write a custom converter for this pair.");
             
 
@@ -62,11 +62,11 @@ public class GenericConverter extends AbstractObjectConverter<Object, Object> {
       return super.createDestinationObject(sourceObject);
    }
 
-   public Class getSourceObjectClass() {
+   public Class getSourceClass() {
       return sourceObjectClass;
    }
 
-   public Class getDestinationObjectClass() {
+   public Class getDestinationClass() {
       return destinationObjectClass;
    }
 

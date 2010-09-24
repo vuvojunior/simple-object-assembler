@@ -43,7 +43,7 @@ import org.springframework.util.Assert;
  * this class, if a fallback for JDK 1.4 is desirable.
  * 
  * This class has been copied directly from Spring in order to make use of some
- * internal utils. Need to look at what is being used out of this.
+ * internal utils. Need to look at what is actually being used out of this.
  * 
  * @author Juergen Hoeller
  * @author Rob Harrop
@@ -58,7 +58,7 @@ public abstract class GenericTypeResolver {
 
    /**
     * Determine the target type for the given parameter specification.
-    * 
+    *
     * @param methodParam
     *           the method parameter specification
     * @return the corresponding generic parameter type
@@ -78,25 +78,7 @@ public abstract class GenericTypeResolver {
       }
    }
 
-   /**
-    * Determine the target type for the given generic parameter type.
-    * 
-    * @param methodParam
-    *           the method parameter specification
-    * @param clazz
-    *           the class to resolve type variables against
-    * @return the corresponding generic parameter or return type
-    */
-   /*
-    * public static Class resolveParameterType(MethodParameter methodParam,
-    * Class clazz) { Type genericType = getTargetType(methodParam);
-    * Assert.notNull(clazz, "Class must not be null"); Map typeVariableMap =
-    * getTypeVariableMap(clazz); Type rawType = getRawType(genericType,
-    * typeVariableMap); Class result = (rawType instanceof Class ? (Class)
-    * rawType : methodParam.getParameterType());
-    * methodParam.setParameterType(result); methodParam.typeVariableMap =
-    * typeVariableMap; return result; }
-    */
+  
 
    /**
     * Determine the target type for the generic return type of the given method.

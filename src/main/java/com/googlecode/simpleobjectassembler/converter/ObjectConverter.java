@@ -11,64 +11,70 @@ import com.googlecode.simpleobjectassembler.converter.mapping.Exclusions;
  * holds a registry of converters. Developers generally wouldn't reference a
  * converter directly and should opt for using the assembler which will find the
  * appropriate converter for the source object, destination class combination.
- * 
+ *
  * @author robmonie
- * 
- * @param <SourceObjectClass>
- * @param <DestinationObjectClass>
+ *
+ * @param <Source>
+ * @param <Destination>
  */
-public interface ObjectConverter<SourceObjectClass, DestinationObjectClass> {
+public interface ObjectConverter<Source, Destination> {
 
    /**
-    * Convert the sourceObject to an instance of the destination object type,
+    * Convert the source to an instance of the destination object type,
     * ignoring specific properties if supplied. A wildcard string "*" can be
     * specified for the ignoreProperties argument if no properties are to be
     * mapped under a given path. This is useful in situations such as when the
     * converter is intended to simply populate / create a destination object by
     * looking it up from the database but not incur the overhead of populating
     * any of the fields as they are known not to change within the context.
-    * 
-    * @param sourceObject
+    *
+    * @param source
+    * @param conversionCache
     * @param exclusions
     *           properties to ignore if autoMapIdenticalFields() returns true
     * @return
     */
-   DestinationObjectClass convert(SourceObjectClass sourceObject, ConversionCache conversionCache,
-         Exclusions exclusions);
+   Destination convert(Source source,
+                                  ConversionCache conversionCache,
+                                  Exclusions exclusions);
 
    /**
-    * Map the source object to the destinationObject ignoring specific
+    * Map the source object to the destination ignoring specific
     * properties if supplied. A wildcard string "*" can be specified for the
     * ignoreProperties argument if no properties are to be mapped under a given
     * path. This is useful in situations such as when the converter is intended
     * to simply populate / create a destination object by looking it up from the
     * database but not incur the overhead of populating any of the fields as
     * they are known not to change within the context.
-    * 
-    * @param sourceObject
-    * @param destinationObject
+    *
+    * @param source
+    * @param destination
+    * @param conversionCache
     * @param exclusions
     * @return
     */
-   DestinationObjectClass convert(SourceObjectClass sourceObject, DestinationObjectClass destinationObject,
-         ConversionCache conversionCache, Exclusions exclusions);
+   Destination convert(Source source,
+                                  Destination destination,
+                                  ConversionCache conversionCache,
+                                  Exclusions exclusions);
 
    /**
     * Returns the type of the source object that this converter acts upon.
     * Required for run time evaluation of the generic type.
-    * 
+    *
     * @return
     */
-   Class<SourceObjectClass> getSourceObjectClass();
+   Class<Source> getSourceClass();
 
    /**
     * Returns the type of the destinationObject returned by this converter.
     * Required for run time evaluation of the generic type.
-    * 
+    *
     * @return
     */
-   Class<DestinationObjectClass> getDestinationObjectClass();
-   
+   Class<Destination> getDestinationClass();
+
+
    void setObjectAssembler(CachingObjectAssembler objectAssembler);
 
 
