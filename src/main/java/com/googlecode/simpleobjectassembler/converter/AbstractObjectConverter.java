@@ -289,6 +289,11 @@ public abstract class AbstractObjectConverter<Source, Destination> implements
 
                final String sourceName = sourcePds[i].getName();
                Class<?> sourceType = sourcePds[i].getPropertyType();
+
+               if (sourceType == null) {
+                  continue;
+               }
+
                if(sourceType.isPrimitive()) {
                   sourceType = PrimitiveTypeUtils.getAutoboxedTypeForPrimitive(sourceType);
                }
