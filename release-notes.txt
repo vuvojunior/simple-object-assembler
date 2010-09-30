@@ -1,5 +1,14 @@
+0.5.3 (2010-09-30)
+    * Modified to not create destination objects if found in cache. Previously destination objects were created regardless and discarded which caused problems if the destination object factory method created relationships with other objects in a hibernate / jpa context.
+
+0.5.2 (2010-09-29)
+    * Under some circumstances when initialising the field mappings, the source type could be null.  This occurred, when converting objects that had some remote calls. Added code to effectively ignore this field mapping and continue on.
+
+0.5.1 (2010-09-24)
+    * Fixed a concurrency issue that occurred when caching initial field mappings for converters. This could potentially happen if on first use of a converter (after app startup) multiple concurrent uses of a converter occurred.
+
 0.5.0 (2010-05-27)
-    * A number of performance fixes. Some siginificant when operating on large object graphs with very large numbers of properties 
+    * A number of performance fixes. Some significant when operating on large object graphs with very large numbers of properties 
     * Added fix for converting between primitives and their autoboxed types
     * Upgraded to require Spring 3.x
     * Changed the way  objects of same type are converted so that they are actually converted not just passed as a reference

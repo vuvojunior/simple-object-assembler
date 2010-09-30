@@ -127,6 +127,8 @@ public class SimpleObjectAssembler implements CachingObjectAssembler {
          return null;
       }
 
+
+
       if (CollectionUtils.isOrderedCollection(sourceObject) && CollectionUtils.isOrderedCollection(destinationObject)) {
 
 
