@@ -84,10 +84,27 @@ public abstract class AbstractObjectConverter<Source, Destination> implements
                                                ConversionCache conversionCache,
                                                Exclusions exclusions) {
 
-      return convert(source, createDestinationObject(source), conversionCache, exclusions);
+
+      final Destination previouslyConvertedDestinationObject = (Destination) conversionCache
+            .getConvertedObjectBySourceObjectAndDestinationType(source, getDestinationClass());
+
+      if (previouslyConvertedDestinationObject == null) {
+
+         Destination destination = createDestinationObject(source);
+
+         conversionCache.cacheConvertedObjectBySourceObject(source, destination,
+               getDestinationClass());
+
+         return convert(source, destination, conversionCache, exclusions);
+      }
+      else {
+         return previouslyConvertedDestinationObject;
+      }
+
+
+
 
    }
-
 
 
    public final Destination convert(Source source,
@@ -95,16 +112,7 @@ public abstract class AbstractObjectConverter<Source, Destination> implements
                                                ConversionCache conversionCache,
                                                Exclusions exclusions) {
 
-      final Destination previouslyConvertedDestinationObject = (Destination) conversionCache
-            .getConvertedObjectBySourceObjectAndDestinationType(source, getDestinationClass());
 
-      if (previouslyConvertedDestinationObject == null) {
-         conversionCache.cacheConvertedObjectBySourceObject(source, destination,
-               getDestinationClass());
-      }
-      else {
-         return previouslyConvertedDestinationObject;
-      }
 
       initialiseFieldMappingIfRequired();
 
