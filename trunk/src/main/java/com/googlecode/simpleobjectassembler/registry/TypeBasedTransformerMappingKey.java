@@ -47,7 +47,9 @@ public class TypeBasedTransformerMappingKey implements ConverterMappingKey {
 
    @Override
    public int hashCode() {
-      return sourceClass.hashCode() + destinationClass.hashCode();
+      int result = sourceClass != null ? sourceClass.hashCode() : 0;
+      result = 31 * result + (destinationClass != null ? destinationClass.hashCode() : 0);
+      return result;
    }
 
    @Override

@@ -1,16 +1,17 @@
 package com.googlecode.simpleobjectassembler.registry;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.googlecode.simpleobjectassembler.ConverterRegistry;
 import com.googlecode.simpleobjectassembler.converter.ObjectConverter;
 import com.googlecode.simpleobjectassembler.converter.mapping.ConverterMappingKey;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class ConverterRegistryImpl implements ConverterRegistry {
 
    private final Map<ConverterMappingKey, ObjectConverter<?, ?>> converterRegistry =
-         new HashMap<ConverterMappingKey, ObjectConverter<?, ?>>();
+         new ConcurrentHashMap<ConverterMappingKey, ObjectConverter<? ,?>>();
+
 
    public ConverterRegistryImpl() {
       // default
