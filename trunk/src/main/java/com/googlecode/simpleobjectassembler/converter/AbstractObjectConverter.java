@@ -92,6 +92,10 @@ public abstract class AbstractObjectConverter<Source, Destination> implements
 
          Destination destination = createDestinationObject(source);
 
+         if(destination == null) {
+            return null;
+         }
+
          conversionCache.cacheConvertedObjectBySourceObject(source, destination,
                getDestinationClass());
 
