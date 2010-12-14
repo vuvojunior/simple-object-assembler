@@ -315,7 +315,7 @@ public abstract class AbstractObjectConverter<Source, Destination> implements
 
                   if(destinationType == null) {
                      continue;
-                  } if(destinationType.isPrimitive()) {
+                  } else if(destinationType.isPrimitive()) {
                      destinationType = PrimitiveTypeUtils.getAutoboxedTypeForPrimitive(destinationType);
                   }
 
