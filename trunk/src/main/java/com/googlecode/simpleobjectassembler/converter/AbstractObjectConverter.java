@@ -304,9 +304,7 @@ public abstract class AbstractObjectConverter<Source, Destination> implements
 
                if (sourceType == null) {
                   continue;
-               }
-
-               if(sourceType.isPrimitive()) {
+               } else if(sourceType.isPrimitive()) {
                   sourceType = PrimitiveTypeUtils.getAutoboxedTypeForPrimitive(sourceType);
                }
 
@@ -315,7 +313,9 @@ public abstract class AbstractObjectConverter<Source, Destination> implements
                   final String destinationName = destinationPds[j].getName();
                   Class<?> destinationType = destinationPds[j].getPropertyType();
 
-                  if(destinationType.isPrimitive()) {
+                  if(destinationType == null) {
+                     continue;
+                  } if(destinationType.isPrimitive()) {
                      destinationType = PrimitiveTypeUtils.getAutoboxedTypeForPrimitive(destinationType);
                   }
 
