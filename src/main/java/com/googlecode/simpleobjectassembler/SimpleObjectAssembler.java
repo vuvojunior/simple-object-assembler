@@ -63,7 +63,7 @@ public class SimpleObjectAssembler implements CachingObjectAssembler {
 
 
    private boolean equalPrimitiveEquivilentTypes(Class sourceType, Class destinationType) {
-      if(sourceType.equals(destinationType) && PrimitiveTypeUtils.isPrimitiveEquivilent(sourceType)) {
+      if (sourceType.equals(destinationType) && PrimitiveTypeUtils.isPrimitiveEquivilent(sourceType)) {
          return true;
       }
       return false;
@@ -83,7 +83,7 @@ public class SimpleObjectAssembler implements CachingObjectAssembler {
          throw new ConversionException("Can't find class for source object: " + sourceObject.getClass().getName(), e);
       }
 
-      if(equalPrimitiveEquivilentTypes(sourceClass, destinationClass)) {
+      if (equalPrimitiveEquivilentTypes(sourceClass, destinationClass)) {
          return (T) sourceObject;
       }
 
@@ -91,8 +91,16 @@ public class SimpleObjectAssembler implements CachingObjectAssembler {
       ObjectConverter objectConverter = converterRegistry.getConverter(sourceClass, destinationClass);
 
       if (objectConverter == null && automapWhenNoConverterFound) {
-         objectConverter = new GenericConverter((CachingObjectAssembler) this, sourceClass, destinationClass);
-         this.registerConverter(objectConverter);
+
+         //if we're about to register a generic converter we need to be absolutely sure that another thread hasn't
+         //created one underneath us.
+         synchronized (this) {
+            objectConverter = converterRegistry.getConverter(sourceClass, destinationClass);
+            if (objectConverter == null) {
+               objectConverter = new GenericConverter((CachingObjectAssembler) this, sourceClass, destinationClass);
+               this.registerConverter(objectConverter);
+            }
+         }
       } else if (objectConverter == null) {
          throw new ConversionException(sourceObject.getClass(), destinationClass);
       }
@@ -101,11 +109,9 @@ public class SimpleObjectAssembler implements CachingObjectAssembler {
    }
 
 
-
    public final <T> T assemble(Object sourceObject, T destinationObject) {
       return this.assemble(sourceObject, destinationObject, new ConversionCache(), new Exclusions());
    }
-
 
 
    public final <T> T assemble(Object sourceObject, T destinationObject, String... ignoreProperties) {
@@ -113,11 +119,9 @@ public class SimpleObjectAssembler implements CachingObjectAssembler {
    }
 
 
-
    public <T> T assemble(Object sourceObject, T destinationObject, Exclusions exclusions) {
       return this.assemble(sourceObject, destinationObject, new ConversionCache(), exclusions);
    }
-
 
 
    public final <T> T assemble(Object sourceObject, T destinationObject, ConversionCache conversionCache,
@@ -126,7 +130,6 @@ public class SimpleObjectAssembler implements CachingObjectAssembler {
       if (sourceObject == null) {
          return null;
       }
-
 
 
       if (CollectionUtils.isOrderedCollection(sourceObject) && CollectionUtils.isOrderedCollection(destinationObject)) {
