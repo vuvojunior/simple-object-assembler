@@ -4,7 +4,7 @@
    <artifactId>simpleobjectassembler</artifactId>
    <name>simpleobjectassembler</name>
    <description>A utility for assembling objects based on the data contained in other objects</description>
-   <version>1.0.0</version>
+   <version>1.0.1-SNAPSHOT</version>
    <packaging>jar</packaging>
    <url>http://code.google.com/p/simple-object-assembler</url>
    <licenses>
@@ -15,9 +15,9 @@
       </license>
    </licenses>
    <scm>
-      <url>https://simple-object-assembler.googlecode.com/svn/tags/1.0.0</url>
-      <connection>scm:svn:http://simple-object-assembler.googlecode.com/svn/tags/1.0.0</connection>
-      <developerConnection>scm:svn:https://simple-object-assembler.googlecode.com/svn/tags/1.0.0</developerConnection>
+      <url>https://simple-object-assembler.googlecode.com/svn/trunk/</url>
+      <connection>scm:svn:http://simple-object-assembler.googlecode.com/svn/trunk/</connection>
+      <developerConnection>scm:svn:https://simple-object-assembler.googlecode.com/svn/trunk/</developerConnection>
    </scm>
    <developers>
       <developer>
