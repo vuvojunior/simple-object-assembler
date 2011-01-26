@@ -1,3 +1,15 @@
+1.0.0 (2011-01-26)
+    * No changes in this release except that the version has been promoted to 1.0.0 and the code is now available from the central maven repo. A minor change to the groupId has been made to satisfy the repo requirements so the group id is now 'com.googlecode.simpleobjectassembler'.
+
+0.5.6 (2011-01-25)
+    * Fixed concurrency issue that can occur if multiple threads attempt to register a generic converter for the same source -> destination combination.
+
+0.5.5 (2010-10-21)
+    * Fixed issue with returning null from converter createDestinationObject method
+
+0.5.4 (2010-10-21)
+    * Resolved concurrency issue with converter registry initialisation. Could occur for apps that get immediately high volume upon startup or where clients invoke multiple concurrent requests.
+
 0.5.3 (2010-09-30)
     * Modified to not create destination objects if found in cache. Previously destination objects were created regardless and discarded which caused problems if the destination object factory method created relationships with other objects in a hibernate / jpa context.
 
