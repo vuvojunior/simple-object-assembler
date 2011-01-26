@@ -2,15 +2,13 @@
 
 =Getting Started Guide=
 
-At this early stage Simple Object Assembler is not available in a public maven repository so if you're interested in using it you have a couple of options.  Either [http://code.google.com/p/simple-object-assembler/downloads/list download the latest version of the code] or [http://code.google.com/p/simple-object-assembler/source/checkout check it out from svn] and build it using maven.  If you're using maven on your project, you'll need to install Simple Object Assembler into your local repository [http://books.sonatype.com/maven-book/reference/repository-manager.html#d0e21974 like this]
-
-Next add the following dependency to your project - obviously double check that the version is correct in case this documentation ever gets out of sync with the latest release:
+For maven users, the easiest way to get going is to add the following dependency to your project. Obviously double check that the version is correct in case this documentation ever gets out of sync with the latest release:
 
 {{{
 <dependency>
-   <groupId>com.googlecode</groupId>
+   <groupId>com.googlecode.simpleobjectassembler</groupId>
    <artifactId>simpleobjectassembler</artifactId>
-   <version>0.5.0</version>
+   <version>1.0.0</version>
 </dependency> 
 }}}
 
@@ -33,7 +31,7 @@ If you would like to have the object assembler automatically attempt to convert 
 Now you're ready to use the object assembler with any Converters you write. 
 
 ==3rd Party Dependencies==
-I've tried to make most of the dependencies optional or specified them with a scope of 'provided' in the maven dependency configuration.  This way you don't have to worry about conflicting versions of Spring for example.  There is a dependency on Spring 2.x and you will get less configuration if you have annotation based configuration enabled.  It is important to note that if you're downloading and installing the compiled jar in your local m2 repository rather than building from source using maven, you will not get any of the transitive dependencies. If you intend to use annotation based configuration (recommended), then ensure you have jsr250-api in your pom:
+I've tried to make most of the dependencies optional or specified them with a scope of 'provided' in the maven dependency configuration.  This way you don't have to worry about conflicting versions of Spring for example.  There is a dependency on Spring 3.x and you will get less configuration if you have annotation based configuration enabled.  It is important to note that if you're downloading and installing the compiled jar in your local m2 repository rather than building from source using maven, you will not get any of the transitive dependencies. If you intend to use annotation based configuration (recommended), then ensure you have jsr250-api in your pom:
 
 {{{
 <dependency>
