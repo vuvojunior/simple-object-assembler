@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.Map.Entry;
 
-import org.springframework.core.GenericCollectionTypeResolver;
-import org.springframework.core.JdkVersion;
 import org.springframework.core.MethodParameter;
 import org.springframework.util.Assert;
 
@@ -48,8 +46,6 @@ import org.springframework.util.Assert;
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @since 2.5.2
- * @see GenericCollectionTypeResolver
- * @see JdkVersion
  */
 public abstract class GenericTypeResolver {
 

@@ -12,7 +12,7 @@ import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.core.GenericCollectionTypeResolver;
+import org.springframework.core.ResolvableType;
 import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.PostConstruct;
@@ -325,8 +325,8 @@ public abstract class AbstractObjectConverter<Source, Destination> implements
                         //&& !CollectionUtils.hasSameGenericCollectionType(sourcePds[i], destinationPds[j])
                         && writableDestinationFields.containsKey(destinationName)) {
 
-                     final Class<?> genericDestinationCollectionType = GenericCollectionTypeResolver
-                           .getCollectionReturnType(destinationPds[j].getReadMethod());
+                     final Class<?> genericDestinationCollectionType = ResolvableType.forMethodReturnType(destinationPds[j]
+                             .getReadMethod()).asCollection().resolveGeneric(0);
 
                      collectionConversionCandidates.add(new PropertyDescriptorPair(sourcePds[i], destinationPds[j],
                            genericDestinationCollectionType));

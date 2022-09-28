@@ -3,7 +3,6 @@ package com.googlecode.simpleobjectassembler;
 import com.googlecode.simpleobjectassembler.utils.PrimitiveTypeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.GenericCollectionTypeResolver;
 
 import com.googlecode.simpleobjectassembler.converter.ConversionException;
 import com.googlecode.simpleobjectassembler.converter.DefaultConverters;
@@ -17,6 +16,7 @@ import com.googlecode.simpleobjectassembler.converter.dao.EntityDao;
 import com.googlecode.simpleobjectassembler.registry.ConverterRegistryImpl;
 import com.googlecode.simpleobjectassembler.utils.CglibUtils;
 import com.googlecode.simpleobjectassembler.utils.CollectionUtils;
+import org.springframework.core.ResolvableType;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -157,7 +157,7 @@ public class SimpleObjectAssembler implements CachingObjectAssembler {
    }
 
    private <T extends Collection> T assembleCollection(Collection sourceCollection, T destinationCollection, Exclusions exclusions) {
-      final Class destinationCollectionType = GenericCollectionTypeResolver.getCollectionType((destinationCollection).getClass());
+      final Class destinationCollectionType = ResolvableType.forClass(destinationCollection.getClass()).asCollection().resolveGeneric(0);
 
       if (destinationCollectionType == null) {
          throw new ConversionException(new StringBuilder()

@@ -1,13 +1,12 @@
 package com.googlecode.simpleobjectassembler.utils;
 
 
+import org.springframework.core.ResolvableType;
+
 import java.beans.PropertyDescriptor;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-
-import org.springframework.core.GenericCollectionTypeResolver;
 
 public final class CollectionUtils {
 
@@ -26,7 +25,7 @@ public final class CollectionUtils {
 
    @SuppressWarnings("unchecked")
    public static <T> Collection<T> createFrom(final Collection sourceCollection) {
-      final Class collectionType = GenericCollectionTypeResolver.getCollectionType(sourceCollection.getClass());
+      final Class collectionType = ResolvableType.forClass(sourceCollection.getClass()).asCollection().resolve();
       try {
          final Collection<T> destinationCollection = sourceCollection.getClass().newInstance();
 
@@ -47,10 +46,9 @@ public final class CollectionUtils {
    public static boolean hasSameGenericCollectionType(PropertyDescriptor sourcePropertyDescriptor,
                                                       PropertyDescriptor destinationPropertyDescriptor) {
 
-      final Class<?> genericSourceType = GenericCollectionTypeResolver.getCollectionReturnType(sourcePropertyDescriptor
-            .getReadMethod());
-      final Class<?> genericDestinationType = GenericCollectionTypeResolver
-            .getCollectionReturnType(destinationPropertyDescriptor.getReadMethod());
+      final Class<?> genericSourceType = ResolvableType.forMethodReturnType(sourcePropertyDescriptor
+            .getReadMethod()).resolve();
+      final Class<?> genericDestinationType = ResolvableType.forMethodReturnType(destinationPropertyDescriptor.getReadMethod()).resolve();
       if (genericSourceType == null && genericDestinationType == null) {
          return true;
       } else if (genericSourceType == null || genericDestinationType == null) {

@@ -1,15 +1,14 @@
 package com.googlecode.simpleobjectassembler.converter.dao;
 
+import javax.persistence.EntityManagerFactory;
 import java.io.Serializable;
 
-import org.springframework.orm.jpa.support.JpaDaoSupport;
+public class JpaEntityDao<T> implements EntityDao<T> {
 
-public class JpaEntityDao<T> extends JpaDaoSupport implements EntityDao<T> {
+   EntityManagerFactory entityManagerFactory;
 
    public T findById(final Class<T> clazz, final Serializable id) {
-
-      return getJpaTemplate().find(clazz, id);
-
+      return entityManagerFactory.createEntityManager().find(clazz, id);
    }
 
 }
