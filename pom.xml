@@ -15,15 +15,23 @@
       </license>
    </licenses>
    <scm>
-      <url>https://simple-object-assembler.googlecode.com/svn/trunk/</url>
-      <connection>scm:svn:http://simple-object-assembler.googlecode.com/svn/trunk/</connection>
-      <developerConnection>scm:svn:https://simple-object-assembler.googlecode.com/svn/trunk/</developerConnection>
+      <url>https://github.com/iits-steidinger/simple-object-assembler</url>
+      <connection>scm:git:https://github.com/iits-steidinger/simple-object-assembler.git</connection>
+      <developerConnection>scm:git:https://github.com/iits-steidinger/simple-object-assembler.git</developerConnection>
    </scm>
    <developers>
       <developer>
          <name>Rob Monie</name>
       </developer>
    </developers>
+
+   <distributionManagement>
+      <repository>
+         <id>github</id>
+         <name>GitHub Packages</name>
+         <url>https://maven.pkg.github.com/iits-steidinger/simple-object-assembler</url>
+      </repository>
+   </distributionManagement>
 
    <parent>
       <groupId>org.sonatype.oss</groupId>
